@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>妮芙露 超新星 ✦ 團購計算機</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #f5f2ee;
+  --surface: #ffffff;
+  --surface2: #faf8f5;
+  --border: #ddd5c8;
+  --border-light: #ede7df;
+  --accent: #b8874f;
+  --accent-light: #f0e4d0;
+  --accent-dark: #8a6035;
+  --text: #1e1a16;
+  --text-muted: #8a7e72;
+  --text-light: #b0a090;
+  --blue: #2563a8;
+  --blue-bg: #e8f0fa;
+  --blue-border: #a0bce8;
+  --orange: #c47820;
+  --orange-bg: #fdf2e0;
+  --orange-border: #e8c070;
+  --green: #3a8a50;
+  --green-bg: #e8f5ec;
+  --green-border: #90c8a0;
+  --red: #b84040;
+  --red-bg: #faeaea;
+  --red-border: #e0a0a0;
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Noto Serif TC', serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+}
+
+/* ── HEADER ── */
+.app-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px 10px;
+  position: sticky; top: 0; z-index: 100;
+}
+.app-header h1 { font-size: 1rem; font-weight: 600; letter-spacing: 0.06em; }
+.app-header .sub { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; }
+.sync-dot.syncing { background: var(--orange); animation: pulse 1s infinite; }
+.sync-dot.error { background: var(--red); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab-btn {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 0.75rem;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.18s;
+  flex-shrink: 0;
+}
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+.tab-pane { display: none; padding: 14px; }
+.tab-pane.active { display: block; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+/* ── BUTTONS ── */
+.btn { font-family: 'Noto Serif TC', serif; border: none; border-radius: 7px; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px; font-size: 0.78rem; padding: 7px 13px; }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:active { background: var(--accent-dark); }
+.btn-ghost { background: none; border: 1px solid var(--border); color: var(--text-muted); }
+.btn-ghost:active { background: var(--bg); }
+.btn-danger { background: none; border: 1px solid var(--red-border); color: var(--red); }
+.btn-danger:active { background: var(--red-bg); }
+.btn-blue { background: var(--blue-bg); border: 1px solid var(--blue-border); color: var(--blue); }
+.btn-sm { font-size: 0.7rem; padding: 5px 9px; }
+.btn-xs { font-size: 0.62rem; padding: 3px 7px; border-radius: 5px; }
+
+/* ── INPUTS ── */
+input, select, textarea {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 0.82rem;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); background: white; }
+textarea { resize: vertical; min-height: 60px; line-height: 1.6; }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238a7e72' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+
+.input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.input-row input { flex: 1; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.form-grid .full { grid-column: 1/-1; }
+.field-label { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 3px; letter-spacing: 0.05em; }
+
+/* ── CATALOG ── */
+.search-wrap { position: relative; margin-bottom: 10px; }
+.search-wrap input { padding-left: 32px; }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem; pointer-events: none; }
+.cat-pills { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+.cat-pill { font-family: 'Noto Serif TC', serif; font-size: 0.68rem; padding: 4px 10px; border: 1px solid var(--border); border-radius: 14px; background: var(--bg); cursor: pointer; color: var(--text-muted); transition: all 0.15s; }
+.cat-pill.active { background: var(--accent); border-color: var(--accent); color: white; font-weight: 600; }
+.catalog-scroll { max-height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.cat-item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 9px 11px; background: var(--bg); border: 1px solid var(--border-light); border-radius: 8px; }
+.cat-item-name { font-size: 0.78rem; font-weight: 600; }
+.cat-item-detail { font-size: 0.62rem; color: var(--text-muted); font-family: 'DM Mono', monospace; margin-top: 1px; }
+.cat-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.price-tag { font-family: 'DM Mono', monospace; font-size: 0.82rem; color: var(--accent); font-weight: 500; }
+.badge-new { display: inline-block; font-size: 0.55rem; background: var(--red); color: white; padding: 1px 4px; border-radius: 3px; margin-left: 3px; vertical-align: middle; font-family: 'DM Mono', monospace; }
+.badge-confirm { font-size: 0.6rem; color: var(--orange); font-family: 'DM Mono', monospace; }
+
+/* ── MEMBER CARDS ── */
+.member-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.member-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border-light);
+  gap: 8px; flex-wrap: wrap;
+}
+.member-name-text { font-size: 0.95rem; font-weight: 600; }
+.member-badges { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+.mbadge { font-family: 'DM Mono', monospace; font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; }
+.mbadge-card { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.mbadge-cash { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+.mbadge-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.member-body { padding: 12px 14px; }
+
+/* ── PICKERS ── */
+.picker-section { margin-bottom: 10px; }
+.picker-section-label { font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px; }
+.pill-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+.pill-btn { font-family: 'Noto Serif TC', serif; font-size: 0.68rem; padding: 5px 10px; border: 1px solid var(--border); background: var(--bg); border-radius: 14px; cursor: pointer; transition: all 0.15s; }
+.pill-btn:active { background: var(--accent-light); border-color: var(--accent); }
+.pill-btn .pill-name { font-weight: 600; display: block; }
+.pill-btn .pill-sub { font-size: 0.58rem; color: var(--text-muted); display: block; font-family: 'DM Mono', monospace; }
+
+/* ── ORDER ITEMS ── */
+.orders-list { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
+.order-item {
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: var(--bg);
+  overflow: hidden;
+}
+.order-item.type-catalog { border-color: var(--blue-border); background: var(--blue-bg); }
+.order-item.type-custom { border-color: var(--border); }
+.order-item.is-return { border-color: var(--orange-border); background: var(--orange-bg); }
+.oi-main { display: flex; align-items: center; gap: 6px; padding: 8px 10px; }
+.oi-info { flex: 1; min-width: 0; }
+.oi-name { font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.oi-detail { font-size: 0.62rem; color: var(--text-muted); font-family: 'DM Mono', monospace; margin-top: 1px; }
+.type-tag { font-size: 0.55rem; padding: 1px 5px; border-radius: 3px; font-family: 'DM Mono', monospace; flex-shrink: 0; }
+.tag-card { background: var(--blue); color: white; }
+.tag-return { background: var(--orange); color: white; }
+.qty-ctrl { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
+.qty-btn { width: 26px; height: 26px; border: 1px solid var(--border); background: white; border-radius: 5px; cursor: pointer; font-size: 1rem; line-height: 1; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.qty-btn:active { background: var(--accent-light); }
+.qty-num { font-family: 'DM Mono', monospace; font-size: 0.82rem; min-width: 20px; text-align: center; }
+.oi-price { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--accent); text-align: right; flex-shrink: 0; min-width: 58px; }
+.oi-price .wage-sub { font-size: 0.58rem; color: var(--text-muted); }
+.btn-remove { width: 22px; height: 22px; border: none; background: none; cursor: pointer; color: var(--text-light); font-size: 1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 4px; }
+.btn-remove:active { background: var(--red-bg); color: var(--red); }
+
+/* Return toggle row */
+.oi-return-row { padding: 0 10px 7px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.return-toggle { font-size: 0.65rem; padding: 3px 8px; border: 1px solid var(--orange-border); border-radius: 5px; background: none; cursor: pointer; color: var(--orange); font-family: 'Noto Serif TC', serif; transition: all 0.15s; }
+.return-toggle.active { background: var(--orange); color: white; }
+.return-group-select { font-size: 0.65rem; padding: 3px 24px 3px 7px; border-radius: 5px; width: auto; min-width: 120px; }
+
+/* ── RETURN GROUP SECTION ── */
+.return-groups-section { margin: 10px 0; }
+.return-group-card {
+  border: 1px solid var(--orange-border);
+  border-radius: 8px;
+  background: var(--orange-bg);
+  padding: 10px 12px;
+  margin-bottom: 6px;
+}
+.rg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.rg-label { font-size: 0.72rem; font-weight: 600; color: var(--orange); }
+.rg-body { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--text); line-height: 2; }
+.rg-row { display: flex; justify-content: space-between; }
+.rg-key { color: var(--text-muted); }
+.rg-val { font-weight: 500; }
+.rg-val.pos { color: var(--green); }
+.rg-val.neg { color: var(--red); }
+.rg-val.final { color: var(--accent); font-size: 0.78rem; }
+.add-rg-btn { width: 100%; padding: 8px; border: 1px dashed var(--orange-border); background: none; border-radius: 8px; color: var(--orange); font-family: 'Noto Serif TC', serif; font-size: 0.72rem; cursor: pointer; margin-top: 4px; }
+.add-rg-btn:active { background: var(--orange-bg); }
+
+/* ── MEMBER FINANCIAL SUMMARY ── */
+.member-fin-summary {
+  background: var(--surface2);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 10px 0;
+}
+.fin-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; font-size: 0.75rem; border-bottom: 1px solid var(--border-light); }
+.fin-row:last-child { border-bottom: none; padding-top: 6px; font-weight: 600; font-size: 0.8rem; }
+.fin-key { color: var(--text-muted); }
+.fin-val { font-family: 'DM Mono', monospace; color: var(--accent); }
+.fin-val.blue { color: var(--blue); }
+.fin-val.green { color: var(--green); }
+
+/* ── STATUS SECTION ── */
+.status-section { border-top: 1px dashed var(--border-light); padding-top: 10px; margin-top: 10px; }
+.status-label-title { font-size: 0.62rem; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+.status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px; }
+.status-check { display: flex; align-items: center; gap: 6px; padding: 6px 9px; border: 1px solid var(--border); border-radius: 7px; background: var(--bg); cursor: pointer; user-select: none; transition: all 0.15s; }
+.status-check.done { background: var(--green-bg); border-color: var(--green-border); }
+.check-box { width: 15px; height: 15px; border: 1.5px solid var(--border); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; background: white; flex-shrink: 0; transition: all 0.15s; }
+.status-check.done .check-box { background: var(--green); border-color: var(--green); color: white; }
+.check-label { font-size: 0.7rem; }
+.wage-btns { display: flex; gap: 4px; margin-bottom: 8px; }
+.wage-btn { flex: 1; padding: 6px 4px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); font-family: 'Noto Serif TC', serif; font-size: 0.63rem; cursor: pointer; text-align: center; transition: all 0.15s; color: var(--text-muted); }
+.wage-btn.active-paid { background: var(--green-bg); border-color: var(--green-border); color: var(--green); font-weight: 600; }
+.wage-btn.active-prepaid { background: var(--orange-bg); border-color: var(--orange-border); color: var(--orange); font-weight: 600; }
+.progress-row { margin-bottom: 8px; }
+.notes-row textarea { font-size: 0.78rem; }
+
+/* ── GLOBAL SUMMARY ── */
+.summary-member-row { padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+.summary-member-row:last-child { border-bottom: none; }
+.smr-name { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+.smr-items { font-size: 0.65rem; color: var(--text-muted); font-family: 'DM Mono', monospace; line-height: 1.7; margin-bottom: 5px; }
+.smr-totals { display: flex; gap: 6px; flex-wrap: wrap; }
+.grand-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 12px; }
+.grand-box { border-radius: 9px; padding: 11px; text-align: center; }
+.grand-box.blue { background: var(--blue-bg); border: 1px solid var(--blue-border); }
+.grand-box.orange { background: var(--orange-bg); border: 1px solid var(--orange-border); }
+.grand-box.green { background: var(--green-bg); border: 1px solid var(--green-border); }
+.grand-label { font-size: 0.6rem; color: var(--text-muted); margin-bottom: 4px; }
+.grand-val { font-family: 'DM Mono', monospace; font-size: 0.92rem; font-weight: 600; }
+.grand-box.blue .grand-val { color: var(--blue); }
+.grand-box.orange .grand-val { color: var(--orange); }
+.grand-box.green .grand-val { color: var(--green); }
+.copy-report-btn { width: 100%; margin-top: 12px; padding: 12px; background: var(--text); color: white; border: none; border-radius: 9px; font-family: 'Noto Serif TC', serif; font-size: 0.85rem; cursor: pointer; letter-spacing: 0.05em; }
+.copy-report-btn:active { opacity: 0.8; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: white; font-size: 0.78rem;
+  padding: 9px 18px; border-radius: 20px; z-index: 9999;
+  opacity: 0; transition: opacity 0.25s; pointer-events: none;
+  font-family: 'DM Mono', monospace; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ── CATALOG MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45); z-index: 500;
+  align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-sheet {
+  background: var(--surface); border-radius: 14px 14px 0 0;
+  width: 100%; max-width: 520px; padding: 16px;
+  max-height: 85vh; overflow-y: auto;
+}
+.modal-title { font-size: 0.88rem; font-weight: 600; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+.modal-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); }
+
+/* ── SETTINGS ── */
+.settings-url-row { display: flex; gap: 6px; align-items: flex-end; }
+.settings-url-row input { flex: 1; font-family: 'DM Mono', monospace; font-size: 0.7rem; }
+
+.divider { border: none; border-top: 1px solid var(--border-light); margin: 10px 0; }
+.empty { text-align: center; font-size: 0.75rem; color: var(--text-muted); padding: 18px 0; }
+
+/* Desktop adjustments */
+@media (min-width: 640px) {
+  .tab-pane { max-width: 680px; margin: 0 auto; }
+  .modal-sheet { border-radius: 14px; margin-bottom: 40px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <h1>妮芙露 超新星 ✦ 團購計算機</h1>
+  <div class="sub">
+    <span class="sync-dot" id="syncDot"></span>
+    <span id="syncStatus">尚未連線</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('order',this)">📋 點單</button>
+  <button class="tab-btn" onclick="switchTab('catalog',this)">🏷 公司目錄</button>
+  <button class="tab-btn" onclick="switchTab('custom',this)">⚙ 加工品</button>
+  <button class="tab-btn" onclick="switchTab('summary',this)">📊 總結帳</button>
+  <button class="tab-btn" onclick="switchTab('settings',this)">⚙ 設定</button>
+</div>
+
+<!-- ═══ ORDER TAB ═══ -->
+<div id="tab-order" class="tab-pane active">
+  <div class="input-row">
+    <input type="text" id="newMemberName" placeholder="新增成員名稱…">
+    <button class="btn btn-primary" onclick="addMember()">＋ 新增</button>
+  </div>
+  <div id="memberList"></div>
+</div>
+
+<!-- ═══ CATALOG TAB ═══ -->
+<div id="tab-catalog" class="tab-pane">
+  <div class="card">
+    <div class="card-title">公司產品目錄（刷卡）</div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="catalogSearch" placeholder="搜尋品名、編號、顏色…" oninput="renderCatalog()">
+    </div>
+    <div class="cat-pills" id="catPills"></div>
+    <div class="catalog-scroll" id="catalogScroll"></div>
+  </div>
+</div>
+
+<!-- ═══ CUSTOM TAB ═══ -->
+<div id="tab-custom" class="tab-pane">
+  <div class="card">
+    <div class="card-title">加工品清單（換貨＋現金工資）</div>
+    <div id="customList" class="empty">讀取中…</div>
+  </div>
+  <div class="card">
+    <div class="card-title">新增加工品</div>
+    <div class="form-grid">
+      <div class="full"><div class="field-label">品項名稱</div><input id="cp_name" placeholder="例：毛毯內衣"></div>
+      <div><div class="field-label">規格（可空）</div><input id="cp_spec" placeholder="M / L"></div>
+      <div><div class="field-label">換貨金額</div><input id="cp_price" type="number" placeholder="$"></div>
+      <div><div class="field-label">工資</div><input id="cp_wage" type="number" placeholder="$"></div>
+      <div class="full"><button class="btn btn-primary" style="width:100%" onclick="addCustomProduct()">＋ 加入加工品</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📌 公司目錄更新說明</div>
+    <div style="font-size:0.73rem;color:var(--text-muted);line-height:1.9;">
+      產品目錄存在 Google Sheets 的 <strong>catalog</strong> 工作表。<br>
+      新品上市：在最後一行加入資料，格式與其他行相同。<br>
+      售罄：刪除該行，或在 status 欄填入「售罄」。<br>
+      存檔後，計算機下次開啟會自動讀取最新目錄。<br><br>
+      <strong>× 0.7 說明：</strong>還貨差額乘以 0.7，為獎金換算現金匯率，超新星團隊統一規定。
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SUMMARY TAB ═══ -->
+<div id="tab-summary" class="tab-pane">
+  <div class="card">
+    <div class="card-title">各成員明細</div>
+    <div id="summaryDetail"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">全團總計</div>
+    <div class="grand-grid">
+      <div class="grand-box blue"><div class="grand-label">公司貨刷卡</div><div class="grand-val" id="gCard">$0</div></div>
+      <div class="grand-box orange"><div class="grand-label">加工品換貨</div><div class="grand-val" id="gExchange">$0</div></div>
+      <div class="grand-box green"><div class="grand-label">工資現金</div><div class="grand-val" id="gWage">$0</div></div>
+    </div>
+    <div style="margin-top:10px;padding:10px;background:var(--orange-bg);border:1px solid var(--orange-border);border-radius:8px;">
+      <div style="font-size:0.68rem;font-family:'DM Mono',monospace;color:var(--orange);font-weight:600;margin-bottom:4px;">還貨群組明細</div>
+      <div id="gReturnDetail" style="font-size:0.65rem;font-family:'DM Mono',monospace;color:var(--text-muted);line-height:1.9;"></div>
+    </div>
+    <button class="copy-report-btn" onclick="copyReport()">📋 複製結帳報告</button>
+  </div>
+</div>
+
+<!-- ═══ SETTINGS TAB ═══ -->
+<div id="tab-settings" class="tab-pane">
+  <div class="card">
+    <div class="card-title">Google Apps Script 連線設定</div>
+    <div class="field-label">Web App URL（部署後取得）</div>
+    <div class="settings-url-row" style="margin-bottom:10px;">
+      <input id="scriptUrl" type="url" placeholder="https://script.google.com/macros/s/…/exec">
+      <button class="btn btn-primary btn-sm" onclick="saveScriptUrl()">儲存</button>
+    </div>
+    <button class="btn btn-blue" style="width:100%;margin-bottom:8px" onclick="loadFromSheets()">📥 從 Sheets 載入資料</button>
+    <button class="btn btn-primary" style="width:100%;margin-bottom:8px" onclick="saveToSheets()">☁ 儲存全部到 Sheets</button>
+    <div style="font-size:0.68rem;color:var(--text-muted);line-height:1.8;margin-top:8px;">
+      首次使用：先完成 Apps Script 部署，取得網址後貼入上方，按「從 Sheets 載入資料」。<br>
+      每次記帳完畢後，按「儲存全部到 Sheets」同步。
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">本機資料管理</div>
+    <button class="btn btn-danger" style="width:100%" onclick="clearAllData()">🗑 清除所有本機資料（成員＋訂單）</button>
+    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;">加工品設定不受影響。清除後可從 Sheets 重新載入。</div>
+  </div>
+</div>
+
+<!-- ═══ CATALOG MODAL ═══ -->
+<div class="modal-overlay" id="catalogModal">
+  <div class="modal-sheet">
+    <div class="modal-title">
+      <span>選擇加入哪位成員</span>
+      <button class="modal-close" onclick="closeCatalogModal()">✕</button>
+    </div>
+    <div id="modalMemberPicker"></div>
+    <div style="font-size:0.72rem;color:var(--text-muted);margin-top:6px;" id="modalProductInfo"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CATALOG DATA (fallback if Sheets unavailable)
+// ==CATALOG START==
+const CATALOG_FALLBACK = [{"cat":"新品","code":"AS069","desc":"寬羅紋圍巾","color":"淺米","size":"150cm x 50cm","price":7400,"status":""},{"cat":"新品","code":"LS038","desc":"晶燦仕女襪","color":"黑色","size":"23 x 25cm","price":2200,"status":"4/8 上市"},{"cat":"新品","code":"LS038","desc":"晶燦仕女襪","color":"銀色","size":"23 x 25cm","price":2200,"status":""},{"cat":"飾品系列","code":"AS001-TW","desc":"萬用方巾(兩條裝)","color":"White/ 白色","size":"60x17cm","price":1040,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"AS002-TW","desc":"萬用長巾","color":"White/ 白色","size":"100x35cm","price":2050,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"AS017-080-TW","desc":"仕女手套","color":"Black/ 黑色","size":"Free size","price":1700,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"AS018-080-TW","desc":"紳士手套","color":"Black/ 黑色","size":"Free size","price":2100,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS052-083-TW","desc":"NI護腕","color":"Black/ 黑色","size":"Free size","price":1400,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"AS052-093-TW","desc":"NI護腕","color":"Yellow/ 黃色","size":"Free size","price":1400,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"AS052-220-TW","desc":"NI護腕(軍綠)","color":"Olive Drab/ 軍綠","size":"Free size","price":1400,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS052-233-TW","desc":"NI護腕","color":"Dark Blue/ 深藍","size":"Free size","price":1400,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"AS052-250-TW","desc":"NI護腕","color":"Red / 紅色","size":"Free size","price":1400,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"AS055-010-TW","desc":"運動帽","color":"Navy/ 深藍","size":"Free size","price":7150,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS055-020-TW","desc":"運動帽","color":"White/ 白色","size":"Free size","price":7150,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS056-060-TW","desc":"時尚披肩","color":"Wine Red/ 酒紅","size":"185x72cm","price":8000,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"AS056-080-TW","desc":"時尚披肩","color":"Black/ 黑色","size":"185x72cm","price":8000,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"AS056-020-TW","desc":"時尚披肩","color":"White/ 白色","size":"185x72cm","price":8000,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"AS057-030-TW","desc":"蕾絲圍巾","color":"Gray/ 灰色","size":"180 x 39 cm","price":9800,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS057-080-TW","desc":"蕾絲圍巾","color":"Black/ 黑色","size":"180 x 39 cm","price":9800,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS059-060-TW","desc":"NI針織帽(酒紅)","color":"Wine Red/ 酒紅","size":"Free size","price":4100,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS063-010-TW","desc":"亮彩圍巾","color":"Navy/ 深藍","size":"180 x 36 cm","price":4400,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS063-020-TW","desc":"亮彩圍巾","color":"Beige/ 米色","size":"180 x 36 cm","price":4400,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS063-080-TW","desc":"亮彩圍巾","color":"Black/ 黑色","size":"180 x 36 cm","price":4400,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS063-090-TW","desc":"亮彩圍巾","color":"Yellow/ 黃色","size":"180 x 36 cm","price":4400,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS065-010-TW","desc":"素雅方巾","color":"Blue / 藍色","size":"110 x 110 cm","price":8200,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS065-180-TW","desc":"素雅方巾","color":"Brown / 棕色","size":"110 x 110 cm","price":8200,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS066-010-TW","desc":"柔美頸套","color":"Navy/ 深藍","size":"30 x 25 cm","price":2300,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"AS066-080-TW","desc":"柔美頸套","color":"Black x White / 黑色*白色","size":"30 x 25 cm","price":2300,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS067-080-TW","desc":"仕女手套","color":"Black/ 黑色","size":"Free size","price":1700,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"AS068-020-TW","desc":"舒適袖套(白色)","color":"White/ 白色","size":"Free size","price":1900,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"AS069-020-TW","desc":"寬羅紋圍巾","color":"Pale Beige/ 淺米","size":"150cm x 50cm","price":7400,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"LS001-080-TW","desc":"時尚襪套","color":"Black/ 黑色","size":"Free size","price":3800,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS002-0125-TW","desc":"仕女乾爽襪","color":"Navy Blue/ 深藍","size":"23~25cm","price":1800,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS002-0625-TW","desc":"仕女乾爽襪","color":"Wine Red/ 酒紅","size":"23~25cm","price":1800,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS002-0825-TW","desc":"仕女乾爽襪","color":"Black/ 黑色","size":"23~25cm","price":1800,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS003-0127-TW","desc":"紳士乾爽襪","color":"Navy Blue/ 深藍","size":"25~27cm","price":2100,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS003-0327-TW","desc":"紳士乾爽襪","color":"Ash Gray/ 灰色","size":"25~27cm","price":2100,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS003-0827-TW","desc":"紳士乾爽襪","color":"Black/ 黑色","size":"25~27cm","price":2100,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS005-0125-TW","desc":"居家襪","color":"Dark Blue/ 深藍","size":"23~25cm","price":1600,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS005-0325-TW","desc":"居家襪","color":"Gray/ 灰色","size":"23~25cm","price":1600,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS005-0625-TW","desc":"居家襪","color":"Wine Red/ 酒紅","size":"23~25cm","price":1600,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS005-0127-TW","desc":"居家襪","color":"Dark Blue/ 深藍","size":"25~27cm","price":2200,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS005-0327-TW","desc":"居家襪","color":"Gray/ 灰色","size":"25~27cm","price":2200,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS005-0627-TW","desc":"居家襪","color":"Wine Red/ 酒紅","size":"25~27cm","price":2200,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS011-0525-TW","desc":"健康五指襪(仕女)","color":"Peach /桃粉","size":"23~25cm","price":1500,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS011-0825-TW","desc":"健康五指襪(仕女)","color":"Black/ 黑色","size":"23~25cm","price":1500,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS012-0127-TW","desc":"健康五指襪(男仕)","color":"Navy Blue/ 深藍","size":"25~27cm","price":1600,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS012-0827-TW","desc":"健康五指襪(男仕)","color":"Black/ 黑色","size":"25~27cm","price":1600,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS014-0325-TW","desc":"休閒襪","color":"Gray/ 灰色","size":"23~25cm","price":1400,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS014-0327-TW","desc":"休閒襪","color":"Gray/ 灰色","size":"25~27cm","price":1400,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS014-0825-TW","desc":"休閒襪","color":"Black/ 黑色","size":"23~25cm","price":1400,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS014-0827-TW","desc":"休閒襪","color":"Black/ 黑色","size":"25~27cm","price":1400,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS027-080-TW","desc":"高筒襪","color":"Black/ 黑色","size":"24~26cm","price":2400,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS027-230-TW","desc":"高筒襪","color":"Royal Blue/ 寶藍","size":"24~26cm","price":2400,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS028-0125-TW","desc":"船襪","color":"Blue/ 藍色","size":"23~25cm","price":1500,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS028-0127-TW","desc":"船襪","color":"Blue/ 藍色","size":"25~27cm","price":1500,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS028-0825-TW","desc":"船襪","color":"Black/ 黑色","size":"23~25cm","price":1500,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS028-0827-TW","desc":"船襪","color":"Black/ 黑色","size":"25~27cm","price":1500,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS028-1825-TW","desc":"船襪","color":"Khaki / 卡其","size":"23~25cm","price":1500,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS028-1827-TW","desc":"船襪","color":"Khaki / 卡其","size":"25~27cm","price":1500,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"LS034-0225-TW","desc":"羅紋居家襪(仕女)","color":"White/ 白色","size":"23~25cm","price":2000,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"LS034-0825-TW","desc":"羅紋居家襪(仕女)","color":"Black/ 黑色","size":"23~25cm","price":2000,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"LS035-0227-TW","desc":"羅紋居家襪(男仕)","color":"White/ 白色","size":"25~27cm","price":2500,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"LS035-0827-TW","desc":"羅紋居家襪(男仕)","color":"Black/ 黑色","size":"25~27cm","price":2500,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"LS036-1825-TW","desc":"波點襪(仕女)","color":"Pale Brown/ 淡棕","size":"23~25cm","price":2200,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"LS037-0127-TW","desc":"波點襪(男仕)","color":"Navy Blue / 深藍","size":"23~25cm","price":2400,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"LS038-0825-TW","desc":"晶燦仕女襪","color":"Black/ 黑色","size":"23 x 25cm","price":2200,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"LS038-2025-TW","desc":"晶燦仕女襪","color":"Silver/ 銀色","size":"23 x 25cm","price":2200,"status":"Limited Edition 限量商品"},{"cat":"飾品系列","code":"SG001-013-TW","desc":"肘膝護具(一雙裝)","color":"Navy Blue / 深藍","size":"M","price":4800,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"SG001-014-TW","desc":"肘膝護具(一雙裝)","color":"Navy Blue / 深藍","size":"L","price":4800,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"SG001-173-TW","desc":"肘膝護具(一雙裝)","color":"Aqua Blue/ 水藍","size":"M","price":4800,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"SG001-174-TW","desc":"肘膝護具(一雙裝)","color":"Aqua Blue/ 水藍","size":"L","price":4800,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"SG001-083-TW","desc":"肘膝護具(一雙裝)","color":"Black/ 黑色","size":"M","price":4800,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"SG001-084-TW","desc":"肘膝護具(一雙裝)","color":"Black/ 黑色","size":"L","price":4800,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"SG011-033-TW","desc":"悠活護肘(一雙裝)","color":"Gray/ 深灰","size":"M","price":3000,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"SG011-034-TW","desc":"悠活護肘(一雙裝)","color":"Gray/ 深灰","size":"L","price":3000,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"SG012-033-TW","desc":"悠活護膝(一雙裝)","color":"Gray/ 深灰","size":"M","price":3600,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"SG012-034-TW","desc":"悠活護膝(一雙裝)","color":"Gray/ 深灰","size":"L","price":3600,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"SG013-033-TW","desc":"悠活護腕(一雙裝)","color":"Gray/ 深灰","size":"M","price":2100,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"SG013-034-TW","desc":"悠活護腕(一雙裝)","color":"Gray/ 深灰","size":"L","price":2100,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"SG014-033-TW","desc":"悠活護踝(一雙裝)","color":"Gray/ 深灰","size":"M","price":2100,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"SG014-034-TW","desc":"悠活護踝(一雙裝)","color":"Gray/ 深灰","size":"L","price":2100,"status":"Regular Item 長期商品"},{"cat":"飾品系列","code":"SG021-030-TW","desc":"護肩","color":"Dark Gray/ 深灰","size":"Free size","price":10100,"status":"Limited Edition 限量商品"},{"cat":"寢具系列","code":"AS049-010-TW","desc":"眼罩","color":"Navy Blue/ 深藍","size":"26 x 8.5cm","price":1400,"status":"Regular Item 長期商品"},{"cat":"寢具系列","code":"AS049-030-TW","desc":"眼罩","color":"Gray/ 灰色","size":"26 x 8.5cm","price":1400,"status":"Regular Item 長期商品"},{"cat":"寢具系列","code":"BI020-037-TW","desc":"妮美麗床罩","color":"Gray/ 灰色","size":"單人","price":18000,"status":"Limited Edition 限量商品"},{"cat":"寢具系列","code":"BI020-038-TW","desc":"妮美麗床罩","color":"Gray/ 灰色","size":"雙人","price":23000,"status":"Limited Edition 限量商品"},{"cat":"寢具系列","code":"BI020-188-TW","desc":"妮美麗床罩(淡駝)","color":"Light Tan/ 淡駝","size":"雙人","price":23000,"status":"Limited Edition 限量商品"},{"cat":"寢具系列","code":"BI021-038-TW","desc":"妮美麗床包","color":"Gray/ 灰色","size":"雙人","price":30800,"status":"Limited Edition 限量商品 (確認中)"},{"cat":"寢具系列","code":"BI031-247-TW","desc":"妮美麗兩用被套(高雅系列)","color":"Cherry Pink/ 櫻花粉","size":"單人","price":44000,"status":"Limited Edition 限量商品"},{"cat":"寢具系列","code":"BI031-248-TW","desc":"妮美麗兩用被套(高雅系列)","color":"Cherry Pink/ 櫻花粉","size":"雙人","price":53000,"status":"Limited Edition 限量商品"},{"cat":"寢具系列","code":"BI035-038-TW","desc":"妮美麗寢具套組(兩用被套+枕套*2)","color":"Gray/ 灰色","size":"雙人","price":61600,"status":"Limited Edition 限量商品"},{"cat":"寢具系列","code":"BI035-118-TW","desc":"妮美麗寢具套組(兩用被套+枕套*2)","color":"Champagne Gold / 香檳金","size":"雙人","price":61600,"status":"Limited Edition 限量商品"},{"cat":"寢具系列","code":"BI042-167-TW","desc":"妮美龍溫芯寢具套組(溫芯被+枕套X1)","color":"Pale Purple / 粉紫","size":"單人","price":50600,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"AS062-020-TW","desc":"護身","color":"Ivory/ 米白","size":"70 cm X 27cm","price":2600,"status":"Regular Item 長期商品"},{"cat":"內衣系列","code":"AS062-010-TW","desc":"護身","color":"Midnight/ 午夜藍","size":"70 cm X 27cm","price":2600,"status":"Regular Item 長期商品"},{"cat":"內衣系列","code":"UW012-083-TW","desc":"彈力褲","color":"Black/ 黑色","size":"M","price":5800,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW108-053-TW","desc":"居家短褲","color":"Pink/ 粉紅","size":"M","price":4600,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW108-054-TW","desc":"居家短褲","color":"Pink/ 粉紅","size":"L","price":4600,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW108-056-TW","desc":"居家短褲","color":"Pink/ 粉紅","size":"LL","price":5000,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW110-043-TW","desc":"居家女短袖","color":"Purple/ 紫色","size":"M","price":7000,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW110-044-TW","desc":"居家女短袖","color":"Purple/ 紫色","size":"L","price":7000,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW110-046-TW","desc":"居家女短袖","color":"Purple/ 紫色","size":"LL","price":7400,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW111-043-TW","desc":"居家女短褲","color":"Purple/ 紫色","size":"M","price":5500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW111-044-TW","desc":"居家女短褲","color":"Purple/ 紫色","size":"L","price":5500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW111-046-TW","desc":"居家女短褲","color":"Purple/ 紫色","size":"LL","price":5800,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW112-343-TW","desc":"居家男短袖","color":"Light Gray/ 淺灰","size":"M","price":10300,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW112-344-TW","desc":"居家男短袖","color":"Light Gray/ 淺灰","size":"L","price":10300,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW112-346-TW","desc":"居家男短袖","color":"Light Gray/ 淺灰","size":"LL","price":11000,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW113-343-TW","desc":"居家男短褲","color":"Light Gray/ 淺灰","size":"M","price":9000,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW113-344-TW","desc":"居家男短褲","color":"Light Gray/ 淺灰","size":"L","price":9000,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW113-346-TW","desc":"居家男短褲","color":"Light Gray/ 淺灰","size":"LL","price":9600,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW114-024-TW","desc":"居家女長袖","color":"White/ 白色","size":"L","price":9400,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW114-026-TW","desc":"居家女長袖","color":"White/ 白色","size":"LL","price":9800,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW115-023-TW","desc":"居家男長袖","color":"White/ 白色","size":"M","price":12300,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW115-024-TW","desc":"居家男長袖","color":"White/ 白色","size":"L","price":12300,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW115-026-TW","desc":"居家男長袖","color":"White/ 白色","size":"LL","price":13100,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW153-083-TW","desc":"親柔女長衫","color":"Black/ 黑色","size":"M","price":5500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW154-084-TW","desc":"親柔男短袖內衣","color":"Black/ 黑色","size":"L","price":5900,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW155-083-TW","desc":"親柔男無袖內衣","color":"Black/ 黑色","size":"M","price":5200,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW156-083-TW","desc":"親柔女長袖內衣","color":"Black/ 黑色","size":"M","price":6300,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW158-083-TW","desc":"親柔男長袖內衣","color":"Black/ 黑色","size":"M","price":6900,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW159-083-TW","desc":"親柔男長內褲","color":"Black/ 黑色","size":"M","price":5800,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW172-083-TW","desc":"親柔男四角內褲","color":"Black/ 黑色","size":"M","price":3900,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW183-024-TW","desc":"柔韻女無袖內衣","color":"Ivory/ 米白","size":"L","price":4200,"status":"Limited Edition 限量商品 (確認中)"},{"cat":"內衣系列","code":"UW183-026-TW","desc":"柔韻女無袖內衣","color":"Ivory/ 米白","size":"LL","price":4600,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW184-023-TW","desc":"柔韻女短袖內衣","color":"Ivory/ 米白","size":"M","price":5300,"status":"Limited Edition 限量商品 (確認中)"},{"cat":"內衣系列","code":"UW184-024-TW","desc":"柔韻女短袖內衣","color":"Ivory/ 米白","size":"L","price":5300,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW184-026-TW","desc":"柔韻女短袖內衣","color":"Ivory/ 米白","size":"LL","price":5700,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW186-024-TW","desc":"柔韻男無袖內衣","color":"Ivory/ 米白","size":"L","price":4600,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW187-023-TW","desc":"柔韻男短袖內衣","color":"Ivory/ 米白","size":"M","price":5500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW187-024-TW","desc":"柔韻男短袖內衣","color":"Ivory/ 米白","size":"L","price":5500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW193-053-TW","desc":"舒適女長袖內衣","color":"Pink/ 粉紅","size":"M","price":6100,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW193-054-TW","desc":"舒適女長袖內衣","color":"Pink/ 粉紅","size":"L","price":6100,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW193-056-TW","desc":"舒適女長袖內衣","color":"Pink/ 粉紅","size":"LL","price":6400,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW194-053-TW","desc":"舒適女長內褲","color":"Pink/ 粉紅","size":"M","price":6100,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW194-054-TW","desc":"舒適女長內褲","color":"Pink/ 粉紅","size":"L","price":6100,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW194-056-TW","desc":"舒適女長內褲","color":"Pink/ 粉紅","size":"LL","price":6400,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW197-133-TW","desc":"舒適男長袖內衣","color":"Beige/ 膚色","size":"M","price":6800,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW197-134-TW","desc":"舒適男長袖內衣","color":"Beige/ 膚色","size":"L","price":6800,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW197-136-TW","desc":"舒適男長袖內衣","color":"Beige/ 膚色","size":"LL","price":7100,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW198-133-TW","desc":"舒適男長內褲","color":"Beige/ 膚色","size":"M","price":6900,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW198-134-TW","desc":"舒適男長內褲","color":"Beige/ 膚色","size":"L","price":6900,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW198-136-TW","desc":"舒適男長內褲","color":"Beige/ 膚色","size":"LL","price":7200,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW212-045-TW","desc":"舒柔男仕長內褲","color":"Plum/ 梅紫","size":"ML","price":7200,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW308-032-TW","desc":"雅緻男仕長內褲","color":"Gray/ 灰色","size":"S","price":4950,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW314-133-TW","desc":"新雅緻男仕長內褲","color":"Beige/ 膚色","size":"M","price":4950,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW316-133-TW","desc":"新雅緻男仕長袖內衣","color":"Beige/ 膚色","size":"M","price":5040,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW405-032-TW","desc":"舒暖長袖上衣","color":"Gray/ 灰色","size":"S","price":9900,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW405-033-TW","desc":"舒暖長袖上衣","color":"Gray/ 灰色","size":"M","price":9900,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW405-034-TW","desc":"舒暖長袖上衣","color":"Gray/ 灰色","size":"L","price":10500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW406-032-TW","desc":"舒暖仕女長褲","color":"Gray/ 灰色","size":"S","price":9300,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW406-033-TW","desc":"舒暖仕女長褲","color":"Gray/ 灰色","size":"M","price":9300,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW406-034-TW","desc":"舒暖仕女長褲","color":"Gray/ 灰色","size":"L","price":10300,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW407-032-TW","desc":"舒暖男仕長褲","color":"Gray/ 灰色","size":"S","price":9700,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW407-033-TW","desc":"舒暖男仕長褲","color":"Gray/ 灰色","size":"M","price":9700,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW407-034-TW","desc":"舒暖男仕長褲","color":"Gray/ 灰色","size":"L","price":10700,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW602-102-TW","desc":"仕女中低腰褲(兩件裝)","color":"Beige/ 膚色","size":"S","price":3110,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW602-109-TW","desc":"仕女中低腰褲(兩件裝)","color":"Beige/ 膚色","size":"3L","price":3600,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW603-032-TW","desc":"仕女低腰褲(兩件裝)","color":"Gray/ 灰色","size":"S","price":2900,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW603-039-TW","desc":"仕女低腰褲(兩件裝)","color":"Gray/ 灰色","size":"3L","price":3510,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW603-042-TW","desc":"仕女低腰褲(兩件裝)","color":"Purple /葡萄紫","size":"S","price":2900,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW603-049-TW","desc":"仕女低腰褲(兩件裝)","color":"Purple /葡萄紫","size":"3L","price":3510,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW603-102-TW","desc":"仕女低腰褲(兩件裝)","color":"Beige/ 膚色","size":"S","price":2900,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW603-109-TW","desc":"仕女低腰褲(兩件裝)","color":"Beige/ 膚色","size":"3L","price":3510,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW611-103-TW","desc":"仕女高腰內褲(兩件裝)","color":"Light Orange/ 淺桔","size":"M","price":3600,"status":"Regular Item 長期商品"},{"cat":"內衣系列","code":"UW611-104-TW","desc":"仕女高腰內褲(兩件裝)","color":"Light Orange/ 淺桔","size":"L","price":3600,"status":"Regular Item 長期商品"},{"cat":"內衣系列","code":"UW611-106-TW","desc":"仕女高腰內褲(兩件裝)","color":"Light Orange/ 淺桔","size":"LL","price":3800,"status":"Regular Item 長期商品"},{"cat":"內衣系列","code":"UW611-173-TW","desc":"仕女高腰內褲(兩件裝)","color":"Light Blue/ 淺藍","size":"M","price":3600,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW611-174-TW","desc":"仕女高腰內褲(兩件裝)","color":"Light Blue/ 淺藍","size":"L","price":3600,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW611-176-TW","desc":"仕女高腰內褲(兩件裝)","color":"Light Blue/ 淺藍","size":"LL","price":3800,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW611-179-TW","desc":"仕女高腰內褲(兩件裝)","color":"Light Blue/ 淺藍","size":"3L","price":4300,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW611-063-TW","desc":"仕女高腰內褲(兩件裝)","color":"Wine Red/ 酒紅","size":"M","price":3600,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW611-064-TW","desc":"仕女高腰內褲(兩件裝)","color":"Wine Red/ 酒紅","size":"L","price":3600,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW611-066-TW","desc":"仕女高腰內褲(兩件裝)","color":"Wine Red/ 酒紅","size":"LL","price":3800,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW611-069-TW","desc":"仕女高腰內褲(兩件裝)","color":"Wine Red/ 酒紅","size":"3L","price":4300,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW612-063-TW","desc":"仕女中腰內褲(兩件裝)","color":"Wine Red/ 酒紅","size":"M","price":3500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW612-064-TW","desc":"仕女中腰內褲(兩件裝)","color":"Wine Red/ 酒紅","size":"L","price":3500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW612-066-TW","desc":"仕女中腰內褲(兩件裝)","color":"Wine Red/ 酒紅","size":"LL","price":3700,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW612-069-TW","desc":"仕女中腰內褲(兩件裝)","color":"Wine Red/ 酒紅","size":"3L","price":4100,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW612-173-TW","desc":"仕女中腰內褲(兩件裝)","color":"Light Blue/ 淺藍","size":"M","price":3500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW612-174-TW","desc":"仕女中腰內褲(兩件裝)","color":"Light Blue/ 淺藍","size":"L","price":3500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW612-176-TW","desc":"仕女中腰內褲(兩件裝)","color":"Light Blue/ 淺藍","size":"LL","price":3700,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW612-179-TW","desc":"仕女中腰內褲(兩件裝)","color":"Light Blue/ 淺藍","size":"3L","price":4100,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW613-023-TW","desc":"男仕四角褲","color":"Ivory/ 米白","size":"M","price":3500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW613-024-TW","desc":"男仕四角褲","color":"Ivory/ 米白","size":"L","price":3500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW613-026-TW","desc":"男仕四角褲","color":"Ivory/ 米白","size":"LL","price":3700,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW613-029-TW","desc":"男仕四角褲","color":"Ivory/ 米白","size":"3L","price":3900,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW613-083-TW","desc":"男仕四角褲","color":"Black/ 黑色","size":"M","price":3500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW613-084-TW","desc":"男仕四角褲","color":"Black/ 黑色","size":"L","price":3500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW613-086-TW","desc":"男仕四角褲","color":"Black/ 黑色","size":"LL","price":3700,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW613-089-TW","desc":"男仕四角褲","color":"Black/ 黑色","size":"3L","price":3900,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW614-023-TW","desc":"男仕三角褲","color":"Ivory/ 米白","size":"M","price":3000,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW614-024-TW","desc":"男仕三角褲","color":"Ivory/ 米白","size":"L","price":3000,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW614-026-TW","desc":"男仕三角褲","color":"Ivory/ 米白","size":"LL","price":3300,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW614-029-TW","desc":"男仕三角褲","color":"Ivory/ 米白","size":"3L","price":3500,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW614-083-TW","desc":"男仕三角褲","color":"Black/ 黑色","size":"M","price":3000,"status":"Limited Edition 限量商品"},{"cat":"內衣系列","code":"UW614-084-TW","desc":"男仕三角褲","color":"Black/ 黑色","size":"L","price":3000,"status":"Limited Edition 限量商品 (確認中)"},{"cat":"元氣生活","code":"HC17-TW","desc":"L型發酵乳酸鈣","color":"","size":"135g/bottle","price":6700,"status":"Regular Item 長期商品"},{"cat":"元氣生活","code":"NE013-TW","desc":"活荔(荔枝萃取物沖泡飲品)","color":"","size":"75g/box","price":4900,"status":"Regular Item 長期商品"},{"cat":"元氣生活","code":"NE023-TW","desc":"鮮魚油","color":"","size":"43.5 g","price":3400,"status":"Regular Item 長期商品"},{"cat":"元氣生活","code":"UN11-TW","desc":"蓋靈活","color":"","size":"30g/box","price":3600,"status":"Regular Item 長期商品"},{"cat":"元氣生活","code":"NS0016-TW","desc":"潔淨洗劑","color":"","size":"125ml","price":230,"status":"Regular Item 長期商品"},{"cat":"元氣生活","code":"NS006-TW","desc":"潔淨洗劑","color":"","size":"500ml","price":800,"status":"Regular Item 長期商品"},{"cat":"元氣生活","code":"NS007-TW","desc":"潔淨洗劑","color":"","size":"1200ml","price":1500,"status":"Regular Item 長期商品"},{"cat":"元氣生活","code":"NS008-TW","desc":"潔淨洗劑旅行組","color":"","size":"125ml×5 bottle","price":1050,"status":"Regular Item 長期商品"},{"cat":"元氣生活","code":"WB-N-TW","desc":"洗衣網","color":"White/ 白色","size":"106cm x 72cm","price":500,"status":"Regular Item 長期商品 (確認中)"},{"cat":"美妍物語","code":"BW001-TW","desc":"美肌植物皂","color":"","size":"90g x 1pc","price":2600,"status":"Regular Item 長期商品"},{"cat":"美妍物語","code":"BW002-TW","desc":"美肌植物皂(精巧包)","color":"","size":"15g x 10pc","price":2700,"status":"Regular Item 長期商品"},{"cat":"美妍物語","code":"BW101-TW","desc":"妮之淬精華露","color":"","size":"120ml","price":3700,"status":"Regular Item 長期商品"},{"cat":"美妍物語","code":"BW102-TW","desc":"妮之淬精華乳","color":"","size":"50ml","price":4200,"status":"Regular Item 長期商品"},{"cat":"美妍物語","code":"BW103-TW","desc":"妮之淬精華霜","color":"","size":"30g","price":4200,"status":"Regular Item 長期商品"},{"cat":"美妍物語","code":"FB-TW","desc":"潔顏起泡網","color":"Blue/ 藍色","size":"173cm x 13cm","price":140,"status":"Regular Item 長期商品"}]
+;
+// ==CATALOG END==
+// ═══════════════════════════════════════════════
+
+// ── STATE ──
+let CATALOG = CATALOG_FALLBACK;
+let customProducts = [
+  {id:1,name:'雙面眼罩',spec:'',price:1500,wage:150},
+  {id:2,name:'毛毯內衣',spec:'M',price:5000,wage:1200},
+  {id:3,name:'毛毯內衣(蕾絲)',spec:'M',price:5000,wage:1200},
+  {id:4,name:'毛毯內衣',spec:'L',price:5430,wage:1200},
+  {id:5,name:'毛毯腹腰帶',spec:'M',price:4650,wage:400},
+  {id:6,name:'毛毯腹腰帶',spec:'L',price:4650,wage:400},
+];
+
+// Pre-loaded orders from previous session
+let members = [
+  {id:'m1',name:'鎂蘭',orders:[
+    {key:'custom_2_1',type:'custom',productId:2,qty:2,isReturn:false,returnGroupId:null},
+    {key:'custom_3_1',type:'custom',productId:3,qty:2,isReturn:false,returnGroupId:null},
+  ],returnGroups:[],progress:'製作中',wageStatus:'none',returned:false,ordered:false,arrived:false,notes:''},
+  {id:'m2',name:'傑文',orders:[
+    {key:'custom_1_1',type:'custom',productId:1,qty:1,isReturn:false,returnGroupId:null},
+  ],returnGroups:[],progress:'製作中',wageStatus:'none',returned:false,ordered:false,arrived:false,notes:''},
+  {id:'m3',name:'Haha',orders:[
+    {key:'custom_1_2',type:'custom',productId:1,qty:2,isReturn:false,returnGroupId:null},
+  ],returnGroups:[],progress:'製作中',wageStatus:'none',returned:false,ordered:false,arrived:false,notes:''},
+  {id:'m4',name:'曉婷',orders:[
+    {key:'custom_1_3',type:'custom',productId:1,qty:4,isReturn:false,returnGroupId:null},
+    {key:'custom_6_1',type:'custom',productId:6,qty:2,isReturn:false,returnGroupId:null},
+    {key:'custom_4_1',type:'custom',productId:4,qty:2,isReturn:false,returnGroupId:null},
+  ],returnGroups:[],progress:'製作中',wageStatus:'none',returned:false,ordered:false,arrived:false,notes:''},
+  {id:'m5',name:'阿佩',orders:[
+    {key:'custom_5_1',type:'custom',productId:5,qty:1,isReturn:false,returnGroupId:null},
+  ],returnGroups:[],progress:'製作中',wageStatus:'none',returned:false,ordered:false,arrived:false,notes:''},
+  {id:'m6',name:'家羽',orders:[
+    {key:'custom_6_2',type:'custom',productId:6,qty:1,isReturn:false,returnGroupId:null},
+  ],returnGroups:[],progress:'製作中',wageStatus:'none',returned:false,ordered:false,arrived:false,notes:''},
+];
+
+let nextMemberId = 10;
+let nextCustomId = 10;
+let nextGroupId  = 1;
+let activeCat    = 'all';
+let pendingCatalogProduct = null;
+let scriptUrl    = '';
+
+const PROGRESS_OPTIONS = ['製作中','運送中','江涵集貨','已寄出/轉交'];
+const STORAGE_KEY = 'nefful_v5';
+
+// ── TABS ──
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'summary') renderSummary();
+  if (name === 'catalog') { renderCatPills(); renderCatalog(); }
+  if (name === 'custom')  renderCustomList();
+  if (name === 'settings') {
+    const urlInput = document.getElementById('scriptUrl');
+    if (urlInput) urlInput.value = scriptUrl || '';
+  }
+}
+
+// ── CATALOG ──
+function renderCatPills() {
+  const cats = ['all', ...new Set(CATALOG.map(p => p.cat))];
+  document.getElementById('catPills').innerHTML = cats.map(c =>
+    `<button class="cat-pill ${activeCat===c?'active':''}" onclick="setCat('${c}')">${c==='all'?'全部':c}</button>`
+  ).join('');
+}
+function setCat(c) { activeCat = c; renderCatPills(); renderCatalog(); }
+function renderCatalog() {
+  const q = (document.getElementById('catalogSearch').value || '').trim().toLowerCase();
+  let items = CATALOG.filter(p => !(p.status||'').includes('售罄'));
+  if (activeCat !== 'all') items = items.filter(p => p.cat === activeCat);
+  if (q) items = items.filter(p =>
+    p.desc.toLowerCase().includes(q) || p.code.toLowerCase().includes(q) || (p.color||'').toLowerCase().includes(q)
+  );
+  const el = document.getElementById('catalogScroll');
+  if (!items.length) { el.innerHTML = '<div class="empty">沒有符合商品</div>'; return; }
+  el.innerHTML = items.map(p => {
+    const detail = [p.color, p.size].filter(Boolean).join(' ／ ');
+    const isNew = p.cat === '新品';
+    const isConfirm = (p.status||'').includes('確認中');
+    return `<div class="cat-item">
+      <div>
+        <div class="cat-item-name">${p.desc}${isNew?'<span class="badge-new">NEW</span>':''}</div>
+        ${detail?`<div class="cat-item-detail">${detail}</div>`:''}
+        <div class="cat-item-detail">${p.code}${isConfirm?' <span class="badge-confirm">（確認中）</span>':''}</div>
+      </div>
+      <div class="cat-item-right">
+        <div class="price-tag">$${p.price.toLocaleString()}</div>
+        <button class="btn btn-blue btn-xs" onclick='openCatalogModal(${JSON.stringify(p)})'>加入訂單</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openCatalogModal(prod) {
+  pendingCatalogProduct = prod;
+  if (!members.length) { toast('請先新增成員'); return; }
+  document.getElementById('modalProductInfo').textContent = `${prod.desc} ${[prod.color,prod.size].filter(Boolean).join('/')}　$${prod.price.toLocaleString()}`;
+  document.getElementById('modalMemberPicker').innerHTML = members.map(m =>
+    `<button class="btn btn-ghost" style="width:100%;margin-bottom:6px;justify-content:flex-start;" onclick="addCatalogToMember('${m.id}')">${m.name}</button>`
+  ).join('');
+  document.getElementById('catalogModal').classList.add('open');
+}
+function closeCatalogModal() {
+  document.getElementById('catalogModal').classList.remove('open');
+  pendingCatalogProduct = null;
+}
+function addCatalogToMember(memberId) {
+  const prod = pendingCatalogProduct;
+  if (!prod) return;
+  const m = members.find(m => m.id === memberId);
+  const key = 'cat_' + prod.code;
+  const ex = m.orders.find(o => o.key === key);
+  if (ex) { ex.qty += 1; }
+  else { m.orders.push({ key, type:'catalog', productCode:prod.code, productDesc:prod.desc, productColor:prod.color, productSize:prod.size, price:prod.price, qty:1, isReturn:false, returnGroupId:null }); }
+  closeCatalogModal();
+  save(); renderAllMembers();
+  toast(`已加入 ${m.name}：${prod.desc}`);
+}
+
+// ── CUSTOM PRODUCTS ──
+function renderCustomList() {
+  const el = document.getElementById('customList');
+  if (!customProducts.length) { el.innerHTML = '<div class="empty">尚無加工品</div>'; return; }
+  el.innerHTML = customProducts.map(p => `
+    <div style="display:grid;grid-template-columns:1fr 70px 65px 28px;gap:6px;align-items:center;padding:8px 10px;background:var(--bg);border:1px solid var(--border-light);border-radius:8px;margin-bottom:6px;">
+      <div><div style="font-size:0.78rem;font-weight:600;">${p.name}</div><div style="font-size:0.63rem;color:var(--text-muted);">${p.spec||''}</div></div>
+      <div><div style="font-size:0.6rem;color:var(--text-muted);">換貨</div><div style="font-family:'DM Mono',monospace;font-size:0.75rem;">$${p.price.toLocaleString()}</div></div>
+      <div><div style="font-size:0.6rem;color:var(--text-muted);">工資</div><div style="font-family:'DM Mono',monospace;font-size:0.75rem;">$${p.wage.toLocaleString()}</div></div>
+      <button class="btn-remove" onclick="deleteCustomProduct(${p.id})">✕</button>
+    </div>`).join('');
+}
+function addCustomProduct() {
+  const name  = document.getElementById('cp_name').value.trim();
+  const spec  = document.getElementById('cp_spec').value.trim();
+  const price = parseInt(document.getElementById('cp_price').value) || 0;
+  const wage  = parseInt(document.getElementById('cp_wage').value) || 0;
+  if (!name || price === 0) { toast('請填品名與換貨金額'); return; }
+  customProducts.push({ id: nextCustomId++, name, spec, price, wage });
+  ['cp_name','cp_spec','cp_price','cp_wage'].forEach(id => document.getElementById(id).value = '');
+  save(); renderCustomList(); renderAllMembers(); toast('加工品已新增');
+}
+function deleteCustomProduct(id) {
+  if (!confirm('確定刪除此加工品？')) return;
+  customProducts = customProducts.filter(p => p.id !== id);
+  members.forEach(m => { m.orders = m.orders.filter(o => o.key !== 'custom_'+id); });
+  save(); renderCustomList(); renderAllMembers();
+}
+
+// ── MEMBERS ──
+function addMember() {
+  const input = document.getElementById('newMemberName');
+  const name = input.value.trim();
+  if (!name) return;
+  members.push({ id:'m'+nextMemberId++, name, orders:[], returnGroups:[], progress:'製作中', wageStatus:'none', returned:false, ordered:false, arrived:false, notes:'' });
+  input.value = '';
+  save(); renderAllMembers();
+}
+function deleteMember(id) {
+  if (!confirm('確定移除此成員？')) return;
+  members = members.filter(m => m.id !== id);
+  save(); renderAllMembers();
+}
+function renderAllMembers() {
+  const el = document.getElementById('memberList');
+  if (!members.length) { el.innerHTML = '<div class="empty">請先新增成員</div>'; return; }
+  el.innerHTML = members.map(m => renderMemberCard(m)).join('');
+}
+
+// ── CALCULATE ──
+function getMemberCalc(m) {
+  let cardTotal = 0, exchangeTotal = 0, wageTotal = 0;
+
+  m.orders.forEach(o => {
+    if (o.type === 'catalog' && !o.isReturn) {
+      cardTotal += o.price * o.qty;
+    } else if (o.type === 'custom') {
+      const cp = customProducts.find(p => p.id === o.productId);
+      if (!cp) return;
+      exchangeTotal += cp.price * o.qty;
+      wageTotal += cp.wage * o.qty;
+    }
+  });
+
+  // Return groups: catalog items marked isReturn go through returnGroups
+  let returnCashDue = 0;
+  let returnCardTotal = 0; // catalog items that ARE return — not added to cardTotal
+  m.orders.forEach(o => {
+    if (o.type === 'catalog' && o.isReturn) {
+      returnCardTotal += o.price * o.qty;
+    }
+  });
+
+  const groups = (m.returnGroups || []).map(rg => {
+    // catalog total for this group
+    const catOrders = m.orders.filter(o => o.type === 'catalog' && o.isReturn && o.returnGroupId === rg.id);
+    const catTotal = catOrders.reduce((s, o) => s + o.price * o.qty, 0);
+    // custom total for this group
+    const custOrders = m.orders.filter(o => o.type === 'custom' && o.returnGroupId === rg.id);
+    const custExchange = custOrders.reduce((s, o) => {
+      const cp = customProducts.find(p => p.id === o.productId);
+      return s + (cp ? cp.price * o.qty : 0);
+    }, 0);
+    const custWage = custOrders.reduce((s, o) => {
+      const cp = customProducts.find(p => p.id === o.productId);
+      return s + (cp ? cp.wage * o.qty : 0);
+    }, 0);
+    const diff = catTotal - custExchange;
+    const diff07 = Math.round(diff * 0.7);
+    const cashDue = diff07 + custWage;
+    returnCashDue += cashDue;
+    return { ...rg, catTotal, custExchange, custWage, diff, diff07, cashDue };
+  });
+
+  // Non-return custom cash (custom items NOT in any return group)
+  const nonReturnCustomCash = m.orders
+    .filter(o => o.type === 'custom' && !o.returnGroupId)
+    .reduce((s, o) => {
+      const cp = customProducts.find(p => p.id === o.productId);
+      return s + (cp ? cp.wage * o.qty : 0);
+    }, 0);
+  // Note: non-return custom exchange is already in exchangeTotal
+
+  const totalCashDue = returnCashDue + nonReturnCustomCash;
+
+  return { cardTotal, exchangeTotal, wageTotal, returnCashDue, nonReturnCustomCash, totalCashDue, groups };
+}
+
+// ── RENDER MEMBER CARD ──
+function renderMemberCard(m) {
+  const calc = getMemberCalc(m);
+
+  // Badges
+  const badges = [
+    calc.cardTotal > 0 ? `<span class="mbadge mbadge-card">刷 $${calc.cardTotal.toLocaleString()}</span>` : '',
+    calc.exchangeTotal > 0 ? `<span class="mbadge mbadge-cash">換 $${calc.exchangeTotal.toLocaleString()}</span>` : '',
+    calc.totalCashDue > 0 ? `<span class="mbadge mbadge-green">現金 $${calc.totalCashDue.toLocaleString()}</span>` : '',
+  ].filter(Boolean).join('');
+
+  // Custom product pickers
+  const customPickers = customProducts.map(p =>
+    `<button class="pill-btn" onclick="addCustomItem('${m.id}',${p.id})">
+      <span class="pill-name">${p.name}${p.spec?' '+p.spec:''}</span>
+      <span class="pill-sub">換$${p.price.toLocaleString()} 工$${p.wage.toLocaleString()}</span>
+    </button>`
+  ).join('');
+
+  // Orders
+  const ordersHTML = m.orders.length === 0
+    ? '<div class="empty" style="padding:8px 0;">尚未點選任何品項</div>'
+    : m.orders.map(o => renderOrderItem(m, o)).join('');
+
+  // Return groups
+  const groupOptions = (m.returnGroups || []).map(rg =>
+    `<option value="${rg.id}">${rg.label}</option>`
+  ).join('');
+  const rgHTML = renderReturnGroups(m, calc);
+
+  // Financial summary
+  const finHTML = renderFinSummary(m, calc);
+
+  // Status
+  const wBC = v => m.wageStatus===v ? (v==='paid'?'wage-btn active-paid':'wage-btn active-prepaid') : 'wage-btn';
+  const progressOpts = PROGRESS_OPTIONS.map(p =>
+    `<option value="${p}" ${m.progress===p?'selected':''}>${p}</option>`
+  ).join('');
+
+  return `<div class="member-card" id="mc_${m.id}">
+    <div class="member-head">
+      <div class="member-name-text">👤 ${m.name}</div>
+      <div class="member-badges">
+        ${badges}
+        <button class="btn btn-danger btn-xs" onclick="deleteMember('${m.id}')">移除</button>
+      </div>
+    </div>
+    <div class="member-body">
+      <div class="picker-section">
+        <div class="picker-section-label">加工品快選</div>
+        <div class="pill-grid">${customPickers || '<span style="font-size:0.7rem;color:var(--text-muted)">請先至加工品頁籤新增</span>'}</div>
+      </div>
+      <div class="picker-section-label" style="font-size:0.62rem;color:var(--blue);margin-bottom:10px;">📘 公司貨請至「公司目錄」頁籤點選</div>
+      <div class="divider"></div>
+      <div class="orders-list">${ordersHTML}</div>
+      ${rgHTML}
+      ${finHTML}
+      <div class="status-section">
+        <div class="status-label-title">進度追蹤</div>
+        <div class="status-grid">
+          <div class="status-check ${m.returned?'done':''}" onclick="toggleCheck('${m.id}','returned')"><div class="check-box">${m.returned?'✓':''}</div><div class="check-label">還貨完成</div></div>
+          <div class="status-check ${m.ordered?'done':''}" onclick="toggleCheck('${m.id}','ordered')"><div class="check-box">${m.ordered?'✓':''}</div><div class="check-label">已下單</div></div>
+          <div class="status-check ${m.arrived?'done':''}" onclick="toggleCheck('${m.id}','arrived')"><div class="check-box">${m.arrived?'✓':''}</div><div class="check-label">到貨</div></div>
+        </div>
+        <div class="status-label-title" style="margin-top:6px;">工資狀態</div>
+        <div class="wage-btns">
+          <button class="${wBC('paid')}" onclick="cycleWage('${m.id}','paid')">✓ 已給付江涵</button>
+          <button class="${wBC('prepaid')}" onclick="cycleWage('${m.id}','prepaid')">⚠ 江涵墊付</button>
+          <button class="${m.wageStatus==='none'?'wage-btn':'wage-btn'}" style="${m.wageStatus==='none'?'color:var(--text-muted)':''}" onclick="cycleWage('${m.id}','none')">未給付</button>
+        </div>
+        <div class="progress-row">
+          <div class="status-label-title">物流進度</div>
+          <select onchange="updateProgress('${m.id}',this.value)">${progressOpts}</select>
+        </div>
+        <div class="notes-row">
+          <div class="status-label-title" style="margin-top:8px;">備註</div>
+          <textarea placeholder="輸入備註…" onchange="updateNotes('${m.id}',this.value)">${m.notes||''}</textarea>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderOrderItem(m, o) {
+  const rgOptions = (m.returnGroups||[]).map(rg =>
+    `<option value="${rg.id}" ${o.returnGroupId===rg.id?'selected':''}>${rg.label}</option>`
+  ).join('');
+  const hasGroups = m.returnGroups && m.returnGroups.length > 0;
+
+  if (o.type === 'catalog') {
+    const detail = [o.productColor, o.productSize].filter(Boolean).join(' ／ ');
+    const returnRowHTML = `<div class="oi-return-row">
+      <button class="return-toggle ${o.isReturn?'active':''}" onclick="toggleReturn('${m.id}','${o.key}')">還貨</button>
+      ${o.isReturn && hasGroups ? `<select class="return-group-select" onchange="assignReturnGroup('${m.id}','${o.key}',this.value)"><option value="">— 選還貨群組 —</option>${rgOptions}</select>` : ''}
+      ${o.isReturn ? '<span style="font-size:0.6rem;color:var(--orange);font-family:\'DM Mono\',monospace;">不計入刷卡，走還貨計算</span>' : ''}
+    </div>`;
+    return `<div class="order-item type-catalog ${o.isReturn?'is-return':''}">
+      <div class="oi-main">
+        <div class="oi-info">
+          <div class="oi-name">${o.productDesc}<span class="type-tag ${o.isReturn?'tag-return':'tag-card'}">${o.isReturn?'還貨':'刷卡'}</span></div>
+          ${detail?`<div class="oi-detail">${detail} ／ ${o.productCode}</div>`:''}
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty('${m.id}','${o.key}',-1)">−</button>
+          <span class="qty-num">${o.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${m.id}','${o.key}',1)">＋</button>
+        </div>
+        <div class="oi-price">$${(o.price*o.qty).toLocaleString()}</div>
+        <button class="btn-remove" onclick="removeOrder('${m.id}','${o.key}')">✕</button>
+      </div>
+      ${returnRowHTML}
+    </div>`;
+  } else {
+    const cp = customProducts.find(p => p.id === o.productId);
+    if (!cp) return '';
+    const returnRowHTML = `<div class="oi-return-row">
+      <button class="return-toggle ${o.returnGroupId?'active':''}" onclick="toggleCustomReturn('${m.id}','${o.key}')">${o.returnGroupId?'已納入還貨群組':'納入還貨群組'}</button>
+      ${hasGroups && o.returnGroupId !== null ? `<select class="return-group-select" onchange="assignReturnGroup('${m.id}','${o.key}',this.value)"><option value="">— 選群組 —</option>${rgOptions}</select>` : ''}
+    </div>`;
+    return `<div class="order-item type-custom ${o.returnGroupId?'is-return':''}">
+      <div class="oi-main">
+        <div class="oi-info">
+          <div class="oi-name">${cp.name}${cp.spec?' '+cp.spec:''}</div>
+          <div class="oi-detail">換$${cp.price.toLocaleString()} ＋ 工$${cp.wage.toLocaleString()}</div>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty('${m.id}','${o.key}',-1)">−</button>
+          <span class="qty-num">${o.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${m.id}','${o.key}',1)">＋</button>
+        </div>
+        <div class="oi-price">$${(cp.price*o.qty).toLocaleString()}<div class="wage-sub">工$${(cp.wage*o.qty).toLocaleString()}</div></div>
+        <button class="btn-remove" onclick="removeOrder('${m.id}','${o.key}')">✕</button>
+      </div>
+      ${returnRowHTML}
+    </div>`;
+  }
+}
+
+function renderReturnGroups(m, calc) {
+  if (!calc.groups || calc.groups.length === 0 && !(m.returnGroups||[]).length) return `
+    <div style="margin:8px 0;">
+      <div class="picker-section-label">還貨群組</div>
+      <button class="add-rg-btn" onclick="addReturnGroup('${m.id}')">＋ 新增還貨群組（一組公司貨抵多筆加工品）</button>
+    </div>`;
+
+  const groupsHTML = calc.groups.map(rg => `
+    <div class="return-group-card">
+      <div class="rg-header">
+        <span class="rg-label">🔄 ${rg.label}</span>
+        <button class="btn btn-danger btn-xs" onclick="deleteReturnGroup('${m.id}','${rg.id}')">刪除</button>
+      </div>
+      <div class="rg-body">
+        <div class="rg-row"><span class="rg-key">公司貨金額</span><span class="rg-val">$${rg.catTotal.toLocaleString()}</span></div>
+        <div class="rg-row"><span class="rg-key">加工品換貨</span><span class="rg-val">$${rg.custExchange.toLocaleString()}</span></div>
+        <div class="rg-row"><span class="rg-key">差額</span><span class="rg-val ${rg.diff>=0?'pos':'neg'}">${rg.diff>=0?'▲':'▼'} $${Math.abs(rg.diff).toLocaleString()}</span></div>
+        <div class="rg-row"><span class="rg-key">差額 × 0.7</span><span class="rg-val ${rg.diff>=0?'pos':'neg'}">${rg.diff>=0?'':'−'} $${Math.abs(rg.diff07).toLocaleString()}</span></div>
+        <div class="rg-row"><span class="rg-key">工資</span><span class="rg-val">$${rg.custWage.toLocaleString()}</span></div>
+        <div class="rg-row" style="border-top:1px solid var(--orange-border);margin-top:3px;padding-top:3px;">
+          <span class="rg-key">現金應付</span>
+          <span class="rg-val final">$${rg.cashDue.toLocaleString()}</span>
+        </div>
+      </div>
+    </div>`).join('');
+
+  return `<div class="return-groups-section">
+    <div class="picker-section-label">還貨群組</div>
+    ${groupsHTML}
+    <button class="add-rg-btn" onclick="addReturnGroup('${m.id}')">＋ 新增還貨群組</button>
+  </div>`;
+}
+
+function renderFinSummary(m, calc) {
+  const lines = [];
+  if (calc.cardTotal > 0) lines.push(`<div class="fin-row"><span class="fin-key">純公司貨（刷卡）</span><span class="fin-val blue">$${calc.cardTotal.toLocaleString()}</span></div>`);
+  if (calc.exchangeTotal > 0) lines.push(`<div class="fin-row"><span class="fin-key">加工品換貨合計</span><span class="fin-val">$${calc.exchangeTotal.toLocaleString()}</span></div>`);
+  if (calc.nonReturnCustomCash > 0) lines.push(`<div class="fin-row"><span class="fin-key">工資（無還貨加工品）</span><span class="fin-val">$${calc.nonReturnCustomCash.toLocaleString()}</span></div>`);
+  if (calc.returnCashDue > 0) lines.push(`<div class="fin-row"><span class="fin-key">還貨現金（差額×0.7＋工資）</span><span class="fin-val">$${calc.returnCashDue.toLocaleString()}</span></div>`);
+  if (lines.length === 0) return '';
+  lines.push(`<div class="fin-row"><span class="fin-key">現金應付合計</span><span class="fin-val green">$${calc.totalCashDue.toLocaleString()}</span></div>`);
+  return `<div class="member-fin-summary">${lines.join('')}</div>`;
+}
+
+// ── ORDER ACTIONS ──
+function addCustomItem(memberId, productId) {
+  const m = members.find(m => m.id === memberId);
+  const key = 'custom_'+productId+'_'+Date.now();
+  // Allow multiple entries of same product (different return groups)
+  m.orders.push({ key, type:'custom', productId, qty:1, isReturn:false, returnGroupId:null });
+  save(); renderAllMembers();
+}
+function changeQty(memberId, key, delta) {
+  const m = members.find(m => m.id === memberId);
+  const o = m.orders.find(o => o.key === key);
+  if (!o) return;
+  o.qty += delta;
+  if (o.qty <= 0) m.orders = m.orders.filter(o => o.key !== key);
+  save(); renderAllMembers();
+}
+function removeOrder(memberId, key) {
+  const m = members.find(m => m.id === memberId);
+  m.orders = m.orders.filter(o => o.key !== key);
+  save(); renderAllMembers();
+}
+function toggleReturn(memberId, key) {
+  const m = members.find(m => m.id === memberId);
+  const o = m.orders.find(o => o.key === key);
+  if (o) {
+    o.isReturn = !o.isReturn;
+    if (!o.isReturn) o.returnGroupId = null;
+  }
+  save(); renderAllMembers();
+}
+function toggleCustomReturn(memberId, key) {
+  const m = members.find(m => m.id === memberId);
+  const o = m.orders.find(o => o.key === key);
+  if (!o) return;
+  if (o.returnGroupId) {
+    o.returnGroupId = null;
+  } else {
+    if (!m.returnGroups || m.returnGroups.length === 0) {
+      toast('請先新增還貨群組'); return;
+    }
+    // auto-assign to first group if only one
+    if (m.returnGroups.length === 1) o.returnGroupId = m.returnGroups[0].id;
+    else o.returnGroupId = m.returnGroups[0].id; // default first
+  }
+  save(); renderAllMembers();
+}
+function assignReturnGroup(memberId, key, groupId) {
+  const m = members.find(m => m.id === memberId);
+  const o = m.orders.find(o => o.key === key);
+  if (o) o.returnGroupId = groupId || null;
+  save(); renderAllMembers();
+}
+
+// ── RETURN GROUPS ──
+function addReturnGroup(memberId) {
+  const m = members.find(m => m.id === memberId);
+  const label = prompt(`輸入還貨群組名稱（例：還貨A）：`, `還貨群組${(m.returnGroups||[]).length+1}`);
+  if (!label) return;
+  if (!m.returnGroups) m.returnGroups = [];
+  m.returnGroups.push({ id:'rg'+nextGroupId++, label });
+  save(); renderAllMembers();
+}
+function deleteReturnGroup(memberId, groupId) {
+  if (!confirm('確定刪除此還貨群組？相關訂單的群組標記也會清除。')) return;
+  const m = members.find(m => m.id === memberId);
+  m.returnGroups = m.returnGroups.filter(rg => rg.id !== groupId);
+  m.orders.forEach(o => { if (o.returnGroupId === groupId) { o.returnGroupId = null; o.isReturn = false; } });
+  save(); renderAllMembers();
+}
+
+// ── STATUS ACTIONS ──
+function toggleCheck(memberId, field) {
+  const m = members.find(m => m.id === memberId);
+  m[field] = !m[field];
+  save(); renderAllMembers();
+}
+function cycleWage(memberId, val) {
+  const m = members.find(m => m.id === memberId);
+  m.wageStatus = val;
+  save(); renderAllMembers();
+}
+function updateProgress(memberId, val) {
+  const m = members.find(m => m.id === memberId);
+  m.progress = val;
+  save();
+}
+function updateNotes(memberId, val) {
+  const m = members.find(m => m.id === memberId);
+  m.notes = val;
+  save();
+}
+
+// ── SUMMARY ──
+function renderSummary() {
+  let gCard=0, gEx=0, gWage=0;
+  const returnLines = [];
+
+  const rows = members.map(m => {
+    const calc = getMemberCalc(m);
+    gCard += calc.cardTotal;
+    gEx   += calc.exchangeTotal;
+    gWage += calc.totalCashDue;
+
+    const itemList = m.orders.map(o => {
+      if (o.type==='catalog') return `${o.productDesc}${o.productSize?' '+o.productSize:''} ×${o.qty}（${o.isReturn?'還貨':'刷卡'}）`;
+      const cp = customProducts.find(p => p.id===o.productId);
+      return cp ? `${cp.name}${cp.spec?' '+cp.spec:''} ×${o.qty}${o.returnGroupId?' [還貨]':''}` : '';
+    }).filter(Boolean).join('、');
+
+    calc.groups.forEach(rg => {
+      returnLines.push(`${m.name}／${rg.label}：公司貨$${rg.catTotal.toLocaleString()} 換貨$${rg.custExchange.toLocaleString()} 差額${rg.diff>=0?'+':''}$${rg.diff.toLocaleString()} ×0.7=${rg.diff>=0?'':'-'}$${Math.abs(rg.diff07).toLocaleString()} ＋工資$${rg.custWage.toLocaleString()} → 現金$${rg.cashDue.toLocaleString()}`);
+    });
+
+    const badges = [
+      calc.cardTotal>0 ? `<span class="mbadge mbadge-card">刷$${calc.cardTotal.toLocaleString()}</span>` : '',
+      calc.exchangeTotal>0 ? `<span class="mbadge mbadge-cash">換$${calc.exchangeTotal.toLocaleString()}</span>` : '',
+      calc.totalCashDue>0 ? `<span class="mbadge mbadge-green">現金$${calc.totalCashDue.toLocaleString()}</span>` : '',
+    ].filter(Boolean).join('');
+
+    return `<div class="summary-member-row">
+      <div class="smr-name">${m.name} <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">（${m.progress}）</span></div>
+      <div class="smr-items">${itemList||'—'}</div>
+      <div class="smr-totals">${badges}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('summaryDetail').innerHTML = rows || '<div class="empty">尚無成員資料</div>';
+  document.getElementById('gCard').textContent     = '$'+gCard.toLocaleString();
+  document.getElementById('gExchange').textContent = '$'+gEx.toLocaleString();
+  document.getElementById('gWage').textContent     = '$'+gWage.toLocaleString();
+  document.getElementById('gReturnDetail').innerHTML = returnLines.length ? returnLines.join('<br>') : '本次無還貨群組';
+}
+
+// ── COPY REPORT ──
+function copyReport() {
+  let text = '📦 妮芙露 超新星 團購結帳報告\n' + '═'.repeat(30) + '\n\n';
+  let gCard=0, gEx=0, gCash=0;
+
+  members.forEach(m => {
+    if (!m.orders.length) return;
+    const calc = getMemberCalc(m);
+    text += `👤 ${m.name}（${m.progress}）\n`;
+
+    m.orders.forEach(o => {
+      if (o.type==='catalog') {
+        const d=[o.productColor,o.productSize].filter(Boolean).join('/');
+        text += `  ${o.productDesc}${d?' '+d:''} ×${o.qty}　${o.isReturn?'[還貨]':'刷卡 $'+(o.price*o.qty).toLocaleString()}\n`;
+      } else {
+        const cp=customProducts.find(p=>p.id===o.productId);
+        if (!cp) return;
+        text += `  ${cp.name}${cp.spec?' '+cp.spec:''} ×${o.qty}${o.returnGroupId?' [還貨群組]':''}　換$${(cp.price*o.qty).toLocaleString()} 工$${(cp.wage*o.qty).toLocaleString()}\n`;
+      }
+    });
+
+    if (calc.groups.length) {
+      text += `  ─ 還貨計算 ─\n`;
+      calc.groups.forEach(rg => {
+        text += `  ${rg.label}：差額${rg.diff>=0?'+':''}$${rg.diff.toLocaleString()} ×0.7 ＋ 工資$${rg.custWage.toLocaleString()} = 現金$${rg.cashDue.toLocaleString()}\n`;
+      });
+    }
+
+    const wStr = m.wageStatus==='paid'?'已給付江涵':m.wageStatus==='prepaid'?'江涵墊付':'未給付';
+    if (calc.cardTotal>0) text += `  純公司貨刷卡：$${calc.cardTotal.toLocaleString()}\n`;
+    text += `  現金應付合計：$${calc.totalCashDue.toLocaleString()}　工資：${wStr}\n`;
+    if (m.notes) text += `  備註：${m.notes}\n`;
+    text += '\n';
+    gCard+=calc.cardTotal; gEx+=calc.exchangeTotal; gCash+=calc.totalCashDue;
+  });
+
+  text += '═'.repeat(30)+'\n';
+  text += `公司貨刷卡總計　$${gCard.toLocaleString()}\n`;
+  text += `加工品換貨總計　$${gEx.toLocaleString()}\n`;
+  text += `現金應付總計　　$${gCash.toLocaleString()}\n`;
+
+  navigator.clipboard.writeText(text)
+    .then(() => toast('✓ 已複製結帳報告'))
+    .catch(() => prompt('請手動複製：', text));
+}
+
+// ── SHEETS INTEGRATION ──
+async function loadFromSheets() {
+  if (!scriptUrl) { toast('請先設定 Script URL'); return; }
+  setSyncStatus('syncing', '讀取中…');
+  try {
+    const res = await fetch(scriptUrl + '?action=all');
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+
+    if (data.catalog && data.catalog.length)         CATALOG = data.catalog;
+    if (data.custom_products && data.custom_products.length) {
+      customProducts = data.custom_products.map(r => ({
+        id: r.id, name: r.name, spec: r.spec||'',
+        price: Number(r.price)||0, wage: Number(r.wage)||0
+      }));
+    }
+    if (data.members && data.members.length) {
+      // Merge orders from sheets
+      const sheetsOrders = (data.orders || []);
+      const sheetsGroups = (data.return_groups || []);
+      members = data.members.map(r => {
+        const mOrders = sheetsOrders.filter(o => o.member_id === r.member_id).map(o => ({
+          key: o.order_id,
+          type: o.type,
+          productId: o.type==='custom' ? Number(o.product_code) : undefined,
+          productCode: o.product_code,
+          productDesc: o.product_name,
+          productColor: o.color,
+          productSize: o.size,
+          price: Number(o.unit_price)||0,
+          qty: Number(o.qty)||1,
+          isReturn: o.is_return==='TRUE'||o.is_return===true||o.is_return==='1',
+          returnGroupId: o.return_group_id||null,
+        }));
+        const mGroups = sheetsGroups.filter(g => g.member_id === r.member_id).map(g => ({
+          id: g.group_id, label: g.group_label,
+        }));
+        return {
+          id: r.member_id, name: r.name,
+          orders: mOrders, returnGroups: mGroups,
+          progress: r.progress||'製作中',
+          wageStatus: r.wage_status||'none',
+          returned: r.returned==='TRUE'||r.returned===true,
+          ordered: r.ordered==='TRUE'||r.ordered===true,
+          arrived: r.arrived==='TRUE'||r.arrived===true,
+          notes: r.notes||'',
+        };
+      });
+    }
+    save();
+    renderAllMembers();
+    renderCustomList();
+    setSyncStatus('ok', '已同步 ' + new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}));
+    toast('✓ 已從 Sheets 載入資料');
+  } catch(e) {
+    setSyncStatus('error', '載入失敗');
+    toast('❌ 載入失敗：' + e.message);
+  }
+}
+
+async function saveToSheets() {
+  if (!scriptUrl) { toast('請先設定 Script URL'); return; }
+  setSyncStatus('syncing', '儲存中…');
+  try {
+    // Flatten orders and return_groups
+    const ordersFlat = [];
+    const groupsFlat = [];
+    members.forEach(m => {
+      const calc = getMemberCalc(m);
+      m.orders.forEach(o => {
+        ordersFlat.push({
+          order_id: o.key, member_id: m.id,
+          type: o.type,
+          product_name: o.type==='catalog' ? o.productDesc : (customProducts.find(p=>p.id===o.productId)||{}).name||'',
+          product_code: o.type==='catalog' ? o.productCode : o.productId,
+          color: o.productColor||'', size: o.productSize||'',
+          unit_price: o.type==='catalog' ? o.price : (customProducts.find(p=>p.id===o.productId)||{}).price||0,
+          wage: o.type==='custom' ? (customProducts.find(p=>p.id===o.productId)||{}).wage||0 : 0,
+          qty: o.qty, is_return: o.isReturn?'TRUE':'FALSE',
+          return_group_id: o.returnGroupId||'',
+          subtotal_price: o.type==='catalog' ? o.price*o.qty : (customProducts.find(p=>p.id===o.productId)||{}).price*o.qty||0,
+          subtotal_wage: o.type==='custom' ? (customProducts.find(p=>p.id===o.productId)||{}).wage*o.qty||0 : 0,
+          updated_at: new Date().toISOString(),
+        });
+      });
+      (m.returnGroups||[]).forEach(rg => {
+        const g = calc.groups.find(g => g.id === rg.id) || {};
+        groupsFlat.push({
+          group_id: rg.id, member_id: m.id, group_label: rg.label,
+          catalog_order_id: m.orders.filter(o=>o.isReturn&&o.returnGroupId===rg.id).map(o=>o.key).join(','),
+          catalog_price_total: g.catTotal||0,
+          custom_order_ids: m.orders.filter(o=>o.returnGroupId===rg.id&&o.type==='custom').map(o=>o.key).join(','),
+          custom_exchange_total: g.custExchange||0,
+          diff: g.diff||0, diff_x07: g.diff07||0,
+          wage_total: g.custWage||0, cash_due: g.cashDue||0,
+          updated_at: new Date().toISOString(),
+        });
+      });
+    });
+
+    const payload = {
+      action: 'save_all',
+      custom_products: customProducts.map(p => ({ ...p, updated_at: new Date().toISOString() })),
+      members: members.map(m => {
+        const calc = getMemberCalc(m);
+        return {
+          member_id: m.id, name: m.name,
+          progress: m.progress, wage_status: m.wageStatus,
+          returned: m.returned?'TRUE':'FALSE',
+          ordered: m.ordered?'TRUE':'FALSE',
+          arrived: m.arrived?'TRUE':'FALSE',
+          notes: m.notes||'',
+          total_card: calc.cardTotal,
+          total_cash_exchange: calc.exchangeTotal,
+          total_wage: calc.wageTotal,
+          total_cash_due: calc.totalCashDue,
+          updated_at: new Date().toISOString(),
+        };
+      }),
+      orders: ordersFlat,
+      return_groups: groupsFlat,
+    };
+
+    const res = await fetch(scriptUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+    setSyncStatus('ok', '已同步 ' + new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}));
+    toast('✓ 已儲存到 Sheets');
+  } catch(e) {
+    setSyncStatus('error', '儲存失敗');
+    toast('❌ 儲存失敗：' + e.message);
+  }
+}
+
+function setSyncStatus(state, msg) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncStatus');
+  dot.className = 'sync-dot' + (state==='syncing'?' syncing':state==='error'?' error':'');
+  txt.textContent = msg;
+}
+
+// ── SETTINGS ──
+function saveScriptUrl() {
+  scriptUrl = document.getElementById('scriptUrl').value.trim();
+  localStorage.setItem('nefful_script_url', scriptUrl);
+  toast('✓ URL 已儲存');
+  if (scriptUrl) setSyncStatus('ok', '已設定連線');
+}
+function clearAllData() {
+  if (!confirm('確定清除所有成員與訂單資料？（加工品保留）')) return;
+  members = [];
+  save();
+  renderAllMembers();
+  toast('已清除成員資料');
+}
+
+// ── LOCAL STORAGE ──
+const LS_KEY = 'nefful_v5';
+function save() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({ customProducts, members, nextMemberId, nextCustomId, nextGroupId, savedAt: new Date().toISOString() }));
+  } catch(e) {}
+}
+function loadLocal() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    if (d.customProducts) customProducts = d.customProducts;
+    if (d.members) members = d.members.map(m => ({
+      returnGroups: [], progress: '製作中', wageStatus: 'none',
+      returned: false, ordered: false, arrived: false, notes: '', ...m
+    }));
+    if (d.nextMemberId) nextMemberId = d.nextMemberId;
+    if (d.nextCustomId) nextCustomId  = d.nextCustomId;
+    if (d.nextGroupId)  nextGroupId   = d.nextGroupId;
+    return d.savedAt;
+  } catch(e) { return null; }
+}
+
+// ── TOAST ──
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ── INIT ──
+const savedAt = loadLocal();
+scriptUrl = localStorage.getItem('nefful_script_url') || '';
+if (scriptUrl) setSyncStatus('ok', '連線已設定');
+
+renderAllMembers();
+renderCustomList();
+
+if (savedAt) {
+  const t = new Date(savedAt);
+  setSyncStatus(scriptUrl?'ok':'', `本機${t.toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})} 已儲存`);
+}
+
+// Close modal on overlay click
+document.getElementById('catalogModal').addEventListener('click', function(e) {
+  if (e.target === this) closeCatalogModal();
+});
+</script>
+</body>
+</html>

@@ -64,6 +64,7 @@ body {
   display: flex;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+  position: sticky; top: 56px; z-index: 99; /* 跟隨 Header 下方 */
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -156,6 +157,19 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .badge-new { display: inline-block; font-size: 0.55rem; background: var(--red); color: white; padding: 1px 4px; border-radius: 3px; margin-left: 3px; vertical-align: middle; font-family: 'DM Mono', monospace; }
 .badge-confirm { font-size: 0.6rem; color: var(--orange); font-family: 'DM Mono', monospace; }
 
+/* ── SHORTCUTS ── */
+.member-shortcuts {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px;
+  padding-bottom: 10px; border-bottom: 1px dashed var(--border-light);
+}
+.shortcut-btn {
+  font-family: 'Noto Serif TC', serif; font-size: 0.72rem; padding: 5px 12px;
+  border: 1px solid var(--accent-light); background: var(--surface);
+  border-radius: 14px; cursor: pointer; color: var(--accent-dark);
+  transition: all 0.15s; font-weight: 500;
+}
+.shortcut-btn:active { background: var(--accent-light); border-color: var(--accent); }
+
 /* ── MEMBER CARDS ── */
 .member-card {
   background: var(--surface);
@@ -164,6 +178,7 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   margin-bottom: 14px;
   overflow: hidden;
   box-shadow: var(--shadow);
+  scroll-margin-top: 110px; /* 避開固定標題與選單的遮擋 */
 }
 .member-head {
   display: flex; align-items: center; justify-content: space-between;
@@ -356,6 +371,10 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     <input type="text" id="newMemberName" placeholder="新增成員名稱…">
     <button class="btn btn-primary" onclick="addMember()">＋ 新增</button>
   </div>
+  
+  <!-- 新增的成員導覽捷徑列 -->
+  <div id="memberShortcuts" class="member-shortcuts"></div>
+
   <div id="memberList"></div>
 </div>
 
@@ -616,7 +635,7 @@ function deleteCustomProduct(id) {
   save(); renderCustomList(); renderAllMembers();
 }
 
-// ── MEMBERS ──
+// ── MEMBERS & SHORTCUTS ──
 function addMember() {
   const input = document.getElementById('newMemberName');
   const name = input.value.trim();
@@ -630,9 +649,29 @@ function deleteMember(id) {
   members = members.filter(m => m.id !== id);
   save(); renderAllMembers();
 }
+
+function scrollToMember(id) {
+  const el = document.getElementById('mc_' + id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
 function renderAllMembers() {
   const el = document.getElementById('memberList');
-  if (!members.length) { el.innerHTML = '<div class="empty">請先新增成員</div>'; return; }
+  const shortcutEl = document.getElementById('memberShortcuts');
+  
+  if (!members.length) { 
+    el.innerHTML = '<div class="empty">請先新增成員</div>'; 
+    shortcutEl.innerHTML = '';
+    return; 
+  }
+  
+  // 生成捷徑導覽列
+  shortcutEl.innerHTML = members.map(m => 
+    `<button class="shortcut-btn" onclick="scrollToMember('${m.id}')">${m.name}</button>`
+  ).join('');
+
   el.innerHTML = members.map(m => renderMemberCard(m)).join('');
 }
 
@@ -688,7 +727,6 @@ function getMemberCalc(m) {
       const cp = customProducts.find(p => p.id === o.productId);
       return s + (cp ? cp.wage * o.qty : 0);
     }, 0);
-  // Note: non-return custom exchange is already in exchangeTotal
 
   const totalCashDue = returnCashDue + nonReturnCustomCash;
 
@@ -720,12 +758,9 @@ function renderMemberCard(m) {
     : m.orders.map(o => renderOrderItem(m, o)).join('');
 
   // Return groups
-  const groupOptions = (m.returnGroups || []).map(rg =>
-    `<option value="${rg.id}">${rg.label}</option>`
-  ).join('');
   const rgHTML = renderReturnGroups(m, calc);
 
-  // Financial summary
+  // Financial summary (Screenshot area)
   const finHTML = renderFinSummary(m, calc);
 
   // Status
@@ -784,7 +819,6 @@ function renderOrderItem(m, o) {
   ).join('');
   const hasGroups = m.returnGroups && m.returnGroups.length > 0;
   
-  // 核心：當數量 > 1 時顯示拆分按鈕
   const splitBtn = o.qty > 1 ? `<button class="btn btn-ghost btn-xs" style="margin-left:auto; font-size:0.6rem; padding:3px 8px; border-color:var(--text-light); color:var(--text-muted);" onclick="splitOrder('${m.id}','${o.key}')">✂️ 拆出 1 件獨立設定</button>` : '';
 
   if (o.type === 'catalog') {
@@ -847,19 +881,14 @@ function splitOrder(memberId, key) {
   if (idx === -1) return;
   
   const o = m.orders[idx];
-  if (o.qty <= 1) return; // 數量大於1才能執行拆分
+  if (o.qty <= 1) return;
   
-  // 1. 原本項目數量減 1
   o.qty -= 1;
-  
-  // 2. 深拷貝出一筆完全相同的獨立項目，數量設為 1，並賦予全新獨立的 Key
   const newOrder = JSON.parse(JSON.stringify(o));
   newOrder.key = o.type + '_split_' + Date.now() + Math.floor(Math.random()*1000);
   newOrder.qty = 1;
   
-  // 3. 將拆出來的這 1 件直接插入到原本項目的正下方
   m.orders.splice(idx + 1, 0, newOrder);
-  
   save(); 
   renderAllMembers();
 }
@@ -904,7 +933,6 @@ function renderFinSummary(m, calc) {
   const ownCatMap = {};
   const retCatMap = {};
 
-  // 將散落的拆分訂單，依照類型與名稱重新合併數量
   m.orders.forEach(o => {
     if (o.type === 'catalog') {
       const name = `${o.productDesc}${o.productSize ? ' ' + o.productSize : ''}`;
@@ -922,24 +950,19 @@ function renderFinSummary(m, calc) {
     }
   });
 
-  // 1. 產生截圖表頭
   let receiptHTML = `<div style="font-weight:600; font-size:0.9rem; margin-bottom:10px; color:var(--accent-dark); border-bottom:1px solid var(--border-light); padding-bottom:6px;">「${m.name}」訂單（進度：${m.progress}）</div>`;
 
-  // 2. 列出加工品項跟數量
   const customLines = Object.entries(customMap).map(([k, v]) => `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${k}</span><span style="font-family:'DM Mono',monospace;">× ${v}</span></div>`).join('');
   if (customLines) receiptHTML += `<div style="margin-bottom:10px;"><div style="font-size:0.62rem; color:var(--text-muted); margin-bottom:3px;">加工品項</div>${customLines}</div>`;
 
-  // 3. （自購）公司貨
   const ownCatLines = Object.entries(ownCatMap).map(([k, v]) => `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${k}</span><span style="font-family:'DM Mono',monospace;">× ${v}</span></div>`).join('');
   if (ownCatLines) receiptHTML += `<div style="margin-bottom:10px;"><div style="font-size:0.62rem; color:var(--text-muted); margin-bottom:3px;">（自購）公司貨</div>${ownCatLines}</div>`;
 
-  // 4. （還貨）公司貨
   const retCatLines = Object.entries(retCatMap).map(([k, v]) => `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${k}</span><span style="font-family:'DM Mono',monospace;">× ${v}</span></div>`).join('');
   if (retCatLines) receiptHTML += `<div style="margin-bottom:10px;"><div style="font-size:0.62rem; color:var(--text-muted); margin-bottom:3px;">（還貨）公司貨</div>${retCatLines}</div>`;
 
   receiptHTML += `<div class="divider" style="margin:10px 0; border-top:1px dashed var(--accent-light);"></div>`;
 
-  // 5. 結合原本的金流計算
   const lines = [];
   if (calc.cardTotal > 0) lines.push(`<div class="fin-row"><span class="fin-key">純公司貨（刷卡）</span><span class="fin-val blue">$${calc.cardTotal.toLocaleString()}</span></div>`);
   if (calc.exchangeTotal > 0) lines.push(`<div class="fin-row"><span class="fin-key">加工品換貨合計</span><span class="fin-val">$${calc.exchangeTotal.toLocaleString()}</span></div>`);
@@ -950,7 +973,6 @@ function renderFinSummary(m, calc) {
     lines.push(`<div class="fin-row" style="margin-top:6px; padding-top:6px; border-top:1px solid var(--border-light);"><span class="fin-key" style="font-weight:600; color:var(--text);">現金應付合計</span><span class="fin-val green" style="font-size:1rem;">$${calc.totalCashDue.toLocaleString()}</span></div>`);
   }
 
-  // 包裝成獨立醒目的截圖專用卡片
   return `<div class="member-fin-summary" style="background:#fffaf2; border:2px solid var(--accent-light); padding:14px 16px; border-radius:10px; box-shadow:0 3px 8px rgba(184,135,79,0.12); font-size:0.78rem; line-height:1.5;">
     ${receiptHTML}
     ${lines.join('')}
@@ -961,7 +983,6 @@ function renderFinSummary(m, calc) {
 function addCustomItem(memberId, productId) {
   const m = members.find(m => m.id === memberId);
   const key = 'custom_'+productId+'_'+Date.now()+ Math.floor(Math.random()*1000);
-  // Allow multiple entries of same product (different return groups)
   m.orders.push({ key, type:'custom', productId, qty:1, isReturn:false, returnGroupId:null });
   save(); renderAllMembers();
 }
@@ -997,9 +1018,8 @@ function toggleCustomReturn(memberId, key) {
     if (!m.returnGroups || m.returnGroups.length === 0) {
       toast('請先新增還貨群組'); return;
     }
-    // auto-assign to first group if only one
     if (m.returnGroups.length === 1) o.returnGroupId = m.returnGroups[0].id;
-    else o.returnGroupId = m.returnGroups[0].id; // default first
+    else o.returnGroupId = m.returnGroups[0].id; 
   }
   save(); renderAllMembers();
 }
@@ -1153,7 +1173,6 @@ async function loadFromSheets() {
       }));
     }
     if (data.members && data.members.length) {
-      // Merge orders from sheets
       const sheetsOrders = (data.orders || []);
       const sheetsGroups = (data.return_groups || []);
       members = data.members.map(r => {
@@ -1200,7 +1219,6 @@ async function saveToSheets() {
   if (!scriptUrl) { toast('請先設定 Script URL'); return; }
   setSyncStatus('syncing', '儲存中…');
   try {
-    // Flatten orders and return_groups
     const ordersFlat = [];
     const groupsFlat = [];
     members.forEach(m => {
@@ -1259,7 +1277,6 @@ async function saveToSheets() {
       return_groups: groupsFlat,
     };
 
-    // 改用 URLSearchParams 迴避 CORS 阻擋
     const formData = new URLSearchParams();
     formData.append('data', JSON.stringify(payload));
 

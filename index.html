@@ -898,14 +898,63 @@ function renderReturnGroups(m, calc) {
 }
 
 function renderFinSummary(m, calc) {
+  if (m.orders.length === 0) return '';
+
+  const customMap = {};
+  const ownCatMap = {};
+  const retCatMap = {};
+
+  // 將散落的拆分訂單，依照類型與名稱重新合併數量
+  m.orders.forEach(o => {
+    if (o.type === 'catalog') {
+      const name = `${o.productDesc}${o.productSize ? ' ' + o.productSize : ''}`;
+      if (o.isReturn) {
+        retCatMap[name] = (retCatMap[name] || 0) + o.qty;
+      } else {
+        ownCatMap[name] = (ownCatMap[name] || 0) + o.qty;
+      }
+    } else {
+      const cp = customProducts.find(p => p.id === o.productId);
+      if (cp) {
+        const name = `${cp.name}${cp.spec ? ' ' + cp.spec : ''}`;
+        customMap[name] = (customMap[name] || 0) + o.qty;
+      }
+    }
+  });
+
+  // 1. 產生截圖表頭
+  let receiptHTML = `<div style="font-weight:600; font-size:0.9rem; margin-bottom:10px; color:var(--accent-dark); border-bottom:1px solid var(--border-light); padding-bottom:6px;">「${m.name}」訂單（進度：${m.progress}）</div>`;
+
+  // 2. 列出加工品項跟數量
+  const customLines = Object.entries(customMap).map(([k, v]) => `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${k}</span><span style="font-family:'DM Mono',monospace;">× ${v}</span></div>`).join('');
+  if (customLines) receiptHTML += `<div style="margin-bottom:10px;"><div style="font-size:0.62rem; color:var(--text-muted); margin-bottom:3px;">加工品項</div>${customLines}</div>`;
+
+  // 3. （自購）公司貨
+  const ownCatLines = Object.entries(ownCatMap).map(([k, v]) => `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${k}</span><span style="font-family:'DM Mono',monospace;">× ${v}</span></div>`).join('');
+  if (ownCatLines) receiptHTML += `<div style="margin-bottom:10px;"><div style="font-size:0.62rem; color:var(--text-muted); margin-bottom:3px;">（自購）公司貨</div>${ownCatLines}</div>`;
+
+  // 4. （還貨）公司貨
+  const retCatLines = Object.entries(retCatMap).map(([k, v]) => `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${k}</span><span style="font-family:'DM Mono',monospace;">× ${v}</span></div>`).join('');
+  if (retCatLines) receiptHTML += `<div style="margin-bottom:10px;"><div style="font-size:0.62rem; color:var(--text-muted); margin-bottom:3px;">（還貨）公司貨</div>${retCatLines}</div>`;
+
+  receiptHTML += `<div class="divider" style="margin:10px 0; border-top:1px dashed var(--accent-light);"></div>`;
+
+  // 5. 結合原本的金流計算
   const lines = [];
   if (calc.cardTotal > 0) lines.push(`<div class="fin-row"><span class="fin-key">純公司貨（刷卡）</span><span class="fin-val blue">$${calc.cardTotal.toLocaleString()}</span></div>`);
   if (calc.exchangeTotal > 0) lines.push(`<div class="fin-row"><span class="fin-key">加工品換貨合計</span><span class="fin-val">$${calc.exchangeTotal.toLocaleString()}</span></div>`);
   if (calc.nonReturnCustomCash > 0) lines.push(`<div class="fin-row"><span class="fin-key">工資（無還貨加工品）</span><span class="fin-val">$${calc.nonReturnCustomCash.toLocaleString()}</span></div>`);
   if (calc.returnCashDue > 0) lines.push(`<div class="fin-row"><span class="fin-key">還貨現金（差額×0.7＋工資）</span><span class="fin-val">$${calc.returnCashDue.toLocaleString()}</span></div>`);
-  if (lines.length === 0) return '';
-  lines.push(`<div class="fin-row"><span class="fin-key">現金應付合計</span><span class="fin-val green">$${calc.totalCashDue.toLocaleString()}</span></div>`);
-  return `<div class="member-fin-summary">${lines.join('')}</div>`;
+  
+  if (lines.length > 0) {
+    lines.push(`<div class="fin-row" style="margin-top:6px; padding-top:6px; border-top:1px solid var(--border-light);"><span class="fin-key" style="font-weight:600; color:var(--text);">現金應付合計</span><span class="fin-val green" style="font-size:1rem;">$${calc.totalCashDue.toLocaleString()}</span></div>`);
+  }
+
+  // 包裝成獨立醒目的截圖專用卡片
+  return `<div class="member-fin-summary" style="background:#fffaf2; border:2px solid var(--accent-light); padding:14px 16px; border-radius:10px; box-shadow:0 3px 8px rgba(184,135,79,0.12); font-size:0.78rem; line-height:1.5;">
+    ${receiptHTML}
+    ${lines.join('')}
+  </div>`;
 }
 
 // ── ORDER ACTIONS ──

@@ -1350,7 +1350,13 @@ function toast(msg) {
 
 // ── INIT ──
 const savedAt = loadLocal();
-scriptUrl = localStorage.getItem('nefful_script_url') || '';
+
+// 【核心修改】直接在這裡貼上你的 App Script 網址
+// 請將下方的網址替換成你實際的 App Script 部署網址
+const MY_PERMANENT_URL = 'https://script.google.com/macros/s/AKfycbw03w508Vhih4HFHmCC_wOLZGobHU8KaFrkhi6Al7ei9RqwPUaieVU3GgK4rp3KRakdMQ/e'; 
+
+// 優先使用寫死的網址，沒有才找本機儲存
+scriptUrl = MY_PERMANENT_URL || localStorage.getItem('nefful_script_url') || '';
 
 if (scriptUrl) {
   setSyncStatus('syncing', '自動連線載入中…');

@@ -266,7 +266,7 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   <div class="card">
     <div class="card-title">Google Apps Script 連線設定</div>
     <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">
-      <b>狀態：</b><span style="color:var(--accent-dark);">已啟用網址硬編碼防護（不會因捷徑遺失）</span>
+      <b>狀態：</b><span style="color:var(--accent-dark);">已啟用網址硬編碼防護</span>
     </div>
     <button class="btn btn-blue" style="width:100%;margin-bottom:8px" onclick="loadFromSheets()">📥 手動從 Sheets 載入</button>
     <button class="btn btn-primary" style="width:100%;margin-bottom:8px" onclick="saveToSheets()">☁ 儲存全部到 Sheets</button>
@@ -510,6 +510,67 @@ function getMemberCalc(m) {
   return { cardTotal, exchangeTotal, wageTotal, returnCashDue, nonReturnCustomCash, totalCashDue, groups };
 }
 
+// ── RECEIPT SUMMARY (截圖專用黃色框) ──
+function renderFinSummary(m, calc) {
+  if (m.orders.length === 0) return '';
+
+  const customMap = {};
+  const ownCatMap = {};
+  const retCatMap = {};
+
+  m.orders.forEach(o => {
+    if (o.type === 'catalog') {
+      const name = `${o.productDesc}${o.productSize ? ' ' + o.productSize : ''}`;
+      if (o.isReturn) {
+        retCatMap[name] = (retCatMap[name] || 0) + o.qty;
+      } else {
+        ownCatMap[name] = (ownCatMap[name] || 0) + o.qty;
+      }
+    } else {
+      const cp = customProducts.find(p => p.id === o.productId);
+      if (cp) {
+        const name = `${cp.name}${cp.spec ? ' ' + cp.spec : ''}`;
+        customMap[name] = (customMap[name] || 0) + o.qty;
+      }
+    }
+  });
+
+  let receiptHTML = `<div style="font-weight:600; font-size:0.9rem; margin-bottom:10px; color:var(--accent-dark); border-bottom:1px solid var(--border-light); padding-bottom:6px;">「${m.name}」訂單（進度：${m.progress}）</div>`;
+
+  const customLines = Object.entries(customMap).map(([k, v]) => `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${k}</span><span style="font-family:'DM Mono',monospace;">× ${v}</span></div>`).join('');
+  if (customLines) receiptHTML += `<div style="margin-bottom:10px;"><div style="font-size:0.62rem; color:var(--text-muted); margin-bottom:3px;">加工品項</div>${customLines}</div>`;
+
+  const ownCatLines = Object.entries(ownCatMap).map(([k, v]) => `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${k}</span><span style="font-family:'DM Mono',monospace;">× ${v}</span></div>`).join('');
+  if (ownCatLines) receiptHTML += `<div style="margin-bottom:10px;"><div style="font-size:0.62rem; color:var(--text-muted); margin-bottom:3px;">公司貨（自購）</div>${ownCatLines}</div>`;
+
+  const retCatLines = Object.entries(retCatMap).map(([k, v]) => `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${k}</span><span style="font-family:'DM Mono',monospace;">× ${v}</span></div>`).join('');
+  if (retCatLines) receiptHTML += `<div style="margin-bottom:10px;"><div style="font-size:0.62rem; color:var(--text-muted); margin-bottom:3px;">公司貨（換加工品用）</div>${retCatLines}</div>`;
+
+  receiptHTML += `<div class="divider" style="margin:10px 0; border-top:1px dashed var(--accent-light);"></div>`;
+
+  const lines = [];
+  const totalSwipe = calc.cardTotal + calc.exchangeTotal;
+
+  if (totalSwipe > 0) {
+    lines.push(`<div style="margin-top:12px; margin-bottom:6px; font-weight:600; color:var(--blue); font-size:0.8rem;">💳 刷卡結帳（交給公司）</div>`);
+    if (calc.cardTotal > 0) lines.push(`<div class="fin-row"><span class="fin-key">公司貨（自購）</span><span class="fin-val">$${calc.cardTotal.toLocaleString()}</span></div>`);
+    if (calc.exchangeTotal > 0) lines.push(`<div class="fin-row"><span class="fin-key">公司貨（換加工品用）</span><span class="fin-val">$${calc.exchangeTotal.toLocaleString()}</span></div>`);
+    lines.push(`<div class="fin-row" style="border-top:1px solid var(--blue-border); margin-top:4px; padding-top:4px;"><span class="fin-key" style="font-weight:600; color:var(--text);">總刷卡金額</span><span class="fin-val blue" style="font-size:0.95rem; font-weight:600;">$${totalSwipe.toLocaleString()}</span></div>`);
+  }
+
+  if (calc.totalCashDue > 0) {
+    lines.push(`<div style="margin-top:14px; margin-bottom:6px; font-weight:600; color:var(--green); font-size:0.8rem;">💵 現金結帳（交給江涵）</div>`);
+    if (calc.nonReturnCustomCash > 0) lines.push(`<div class="fin-row"><span class="fin-key">純工資（無還貨）</span><span class="fin-val">$${calc.nonReturnCustomCash.toLocaleString()}</span></div>`);
+    if (calc.returnCashDue > 0) lines.push(`<div class="fin-row"><span class="fin-key">差額補貼 (×0.7) ＋ 工資</span><span class="fin-val">$${calc.returnCashDue.toLocaleString()}</span></div>`);
+    lines.push(`<div class="fin-row" style="border-top:1px solid var(--green-border); margin-top:4px; padding-top:4px;"><span class="fin-key" style="font-weight:600; color:var(--text);">總現金應付</span><span class="fin-val green" style="font-size:0.95rem; font-weight:600;">$${calc.totalCashDue.toLocaleString()}</span></div>`);
+  }
+
+  return `<div class="member-fin-summary" style="background:#fffaf2; border:2px solid var(--accent-light); padding:14px 16px; border-radius:10px; box-shadow:0 3px 8px rgba(184,135,79,0.12); font-size:0.78rem; line-height:1.5;">
+    ${receiptHTML}
+    ${lines.join('')}
+  </div>`;
+}
+
 // ── RENDER MEMBER CARD ──
 function renderMemberCard(m) {
   const calc = getMemberCalc(m);
@@ -679,70 +740,6 @@ function renderReturnGroups(m, calc) {
     <div class="picker-section-label">還貨群組</div>
     ${groupsHTML}
     <button class="add-rg-btn" onclick="addReturnGroup('${m.id}')">＋ 新增還貨群組</button>
-  </div>`;
-}
-
-// ── RECEIPT SUMMARY (截圖專用黃色框) ──
-function renderFinSummary(m, calc) {
-  if (m.orders.length === 0) return '';
-
-  const customMap = {};
-  const ownCatMap = {};
-  const retCatMap = {};
-
-  m.orders.forEach(o => {
-    if (o.type === 'catalog') {
-      const name = `${o.productDesc}${o.productSize ? ' ' + o.productSize : ''}`;
-      if (o.isReturn) {
-        retCatMap[name] = (retCatMap[name] || 0) + o.qty;
-      } else {
-        ownCatMap[name] = (ownCatMap[name] || 0) + o.qty;
-      }
-    } else {
-      const cp = customProducts.find(p => p.id === o.productId);
-      if (cp) {
-        const name = `${cp.name}${cp.spec ? ' ' + cp.spec : ''}`;
-        customMap[name] = (customMap[name] || 0) + o.qty;
-      }
-    }
-  });
-
-  let receiptHTML = `<div style="font-weight:600; font-size:0.9rem; margin-bottom:10px; color:var(--accent-dark); border-bottom:1px solid var(--border-light); padding-bottom:6px;">「${m.name}」訂單（進度：${m.progress}）</div>`;
-
-  const customLines = Object.entries(customMap).map(([k, v]) => `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${k}</span><span style="font-family:'DM Mono',monospace;">× ${v}</span></div>`).join('');
-  if (customLines) receiptHTML += `<div style="margin-bottom:10px;"><div style="font-size:0.62rem; color:var(--text-muted); margin-bottom:3px;">加工品項</div>${customLines}</div>`;
-
-  const ownCatLines = Object.entries(ownCatMap).map(([k, v]) => `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${k}</span><span style="font-family:'DM Mono',monospace;">× ${v}</span></div>`).join('');
-  if (ownCatLines) receiptHTML += `<div style="margin-bottom:10px;"><div style="font-size:0.62rem; color:var(--text-muted); margin-bottom:3px;">公司貨（自購）</div>${ownCatLines}</div>`;
-
-  const retCatLines = Object.entries(retCatMap).map(([k, v]) => `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${k}</span><span style="font-family:'DM Mono',monospace;">× ${v}</span></div>`).join('');
-  if (retCatLines) receiptHTML += `<div style="margin-bottom:10px;"><div style="font-size:0.62rem; color:var(--text-muted); margin-bottom:3px;">公司貨（換加工品用）</div>${retCatLines}</div>`;
-
-  receiptHTML += `<div class="divider" style="margin:10px 0; border-top:1px dashed var(--accent-light);"></div>`;
-
-  const lines = [];
-  const totalSwipe = calc.cardTotal + calc.exchangeTotal;
-
-  // 💳 刷卡區塊
-  if (totalSwipe > 0) {
-    lines.push(`<div style="margin-top:12px; margin-bottom:4px; font-weight:600; color:var(--blue); font-size:0.75rem;">💳 刷卡結帳（對公司）</div>`);
-    if (calc.cardTotal > 0) lines.push(`<div class="fin-row"><span class="fin-key">公司貨（自購）</span><span class="fin-val">$${calc.cardTotal.toLocaleString()}</span></div>`);
-    if (calc.exchangeTotal > 0) lines.push(`<div class="fin-row"><span class="fin-key">公司貨（換加工品用）</span><span class="fin-val">$${calc.exchangeTotal.toLocaleString()}</span></div>`);
-    lines.push(`<div class="fin-row" style="border-top:1px solid var(--blue-border); margin-bottom:12px;"><span class="fin-key" style="font-weight:600; color:var(--text);">總刷卡金額</span><span class="fin-val blue" style="font-size:0.95rem; font-weight:600;">$${totalSwipe.toLocaleString()}</span></div>`);
-  }
-
-  // 💵 現金區塊
-  if (calc.totalCashDue > 0) {
-    lines.push(`<div style="margin-top:4px; margin-bottom:4px; font-weight:600; color:var(--green); font-size:0.75rem;">💵 現金結帳（交給江涵）</div>`);
-    if (calc.nonReturnCustomCash > 0) lines.push(`<div class="fin-row"><span class="fin-key">純工資（無還貨）</span><span class="fin-val">$${calc.nonReturnCustomCash.toLocaleString()}</span></div>`);
-    if (calc.returnCashDue > 0) lines.push(`<div class="fin-row"><span class="fin-key">差額補貼 (×0.7) ＋ 工資</span><span class="fin-val">$${calc.returnCashDue.toLocaleString()}</span></div>`);
-    lines.push(`<div class="fin-row" style="border-top:1px solid var(--green-border);"><span class="fin-key" style="font-weight:600; color:var(--text);">總現金應付</span><span class="fin-val green" style="font-size:0.95rem; font-weight:600;">$${calc.totalCashDue.toLocaleString()}</span></div>`);
-  }
-
-  // 包裝成獨立醒目的截圖專用卡片
-  return `<div class="member-fin-summary" style="background:#fffaf2; border:2px solid var(--accent-light); padding:14px 16px; border-radius:10px; box-shadow:0 3px 8px rgba(184,135,79,0.12); font-size:0.78rem; line-height:1.5;">
-    ${receiptHTML}
-    ${lines.join('')}
   </div>`;
 }
 
